@@ -1,0 +1,39 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.laruche.james</groupId>
+    <artifactId>james</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <name>James</name>
+    <description>Librairie utilitaire afin de pouvoir faciliter
+        la gestion des agents avec JADE
+    </description>
+
+    <!-- Liste des modules-->
+    <modules>
+        <module>james-agent</module>
+        <module>james-test</module>
+    </modules>
+
+    <!-- Propriétés du projet -->
+    <properties>
+        <java.version>11</java.version>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+
+</project>
