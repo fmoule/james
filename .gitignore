@@ -1,5 +1,17 @@
+#### Fichiers IDE
+*.ipr
+*.iml
+*.iws
+.idea/
+
+#### Fichiers généraux :
 # Compiled class file
 *.class
+target/
+
+# JADE
+APDescription.txt
+MTPs-Main-Container.txt
 
 # Log file
 *.log
