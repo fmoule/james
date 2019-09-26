@@ -1,0 +1,9 @@
+
+target
+*.class
+*.ipr
+*.iml
+*.iws
+
+APDescription.txt
+MTPs-Main-Container.txt

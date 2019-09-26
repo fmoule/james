@@ -1,0 +1,102 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.laruche.james</groupId>
+    <artifactId>james</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <name>James</name>
+    <description>Librairie utilitaire afin de pouvoir faciliter
+        la gestion des agents avec JADE
+    </description>
+
+    <!-- Liste des modules-->
+    <modules>
+        <module>james-agent</module>
+        <module>james-test</module>
+    </modules>
+
+    <!-- Propriétés du projet -->
+    <properties>
+        <java.version>11</java.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+
+    <repositories>
+        <repository>
+            <id>tilab</id>
+            <url>https://jade.tilab.com/maven/</url>
+        </repository>
+
+        <repository>
+            <id>central</id>
+            <url>https://repo.maven.apache.org/maven2/</url>
+        </repository>
+
+    </repositories>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+
+    <dependencyManagement>
+        <dependencies>
+
+            <!-- Modules -->
+            <dependency>
+                <groupId>org.laruche.james</groupId>
+                <artifactId>james-agent</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- Framework JADE -->
+            <dependency>
+                <groupId>com.tilab.jade</groupId>
+                <artifactId>jade</artifactId>
+                <version>4.5.0</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.tilab.jade</groupId>
+                <artifactId>jade-xml-codec</artifactId>
+                <version>1.11.0</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.tilab.jade</groupId>
+                <artifactId>jade-test-suite</artifactId>
+                <version>1.13.0</version>
+            </dependency>
+
+            <!-- ///// Librairies de test ///// -->
+
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter</artifactId>
+                <version>5.5.2</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.assertj</groupId>
+                <artifactId>assertj-core</artifactId>
+                <version>3.13.2</version>
+            </dependency>
+
+        </dependencies>
+    </dependencyManagement>
+
+
+</project>
