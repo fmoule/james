@@ -12,6 +12,24 @@
     <packaging>jar</packaging>
 
     <name>James Agent</name>
+    <description>
+        Librairie comportant toutes les classes utilitaires afin de gérer des agents JADE.
+    </description>
+
+
+    <dependencies>
+
+        <dependency>
+            <groupId>com.tilab.jade</groupId>
+            <artifactId>jade</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.tilab.jade</groupId>
+            <artifactId>jade-xml-codec</artifactId>
+        </dependency>
+
+    </dependencies>
 
 
 </project>
