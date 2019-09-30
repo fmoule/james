@@ -55,14 +55,24 @@
     <dependencyManagement>
         <dependencies>
 
-            <!-- Modules -->
+            <!-- ///// Modules ///// -->
+
             <dependency>
                 <groupId>org.laruche.james</groupId>
                 <artifactId>james-agent</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
+            <!-- ///// Librairies générales ///// -->
+
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>1.2.3</version>
+            </dependency>
+
             <!-- Framework JADE -->
+
             <dependency>
                 <groupId>com.tilab.jade</groupId>
                 <artifactId>jade</artifactId>
@@ -79,6 +89,14 @@
                 <groupId>com.tilab.jade</groupId>
                 <artifactId>jade-test-suite</artifactId>
                 <version>1.13.0</version>
+            </dependency>
+
+            <!-- Framework web -->
+
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-server</artifactId>
+                <version>9.4.19.v20190610</version>
             </dependency>
 
             <!-- ///// Librairies de test ///// -->
