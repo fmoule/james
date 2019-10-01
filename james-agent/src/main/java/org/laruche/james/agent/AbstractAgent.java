@@ -61,7 +61,10 @@ public abstract class AbstractAgent extends Agent {
     protected void setup() {
         try {
             this.getContentManager().registerLanguage(getAgentLanguage());
-            this.getContentManager().registerOntology(getOntologyInstance());
+            final Ontology ontology = getOntologyInstance();
+            if (ontology != null) {
+                this.getContentManager().registerOntology(ontology);
+            }
             this.doSetUp();
             this.started = true;
         } catch (final Exception e) {

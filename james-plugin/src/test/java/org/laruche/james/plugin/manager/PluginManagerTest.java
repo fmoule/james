@@ -77,29 +77,29 @@ class PluginManagerTest {
         }
 
         @Override
-        protected void doStart() throws Exception {
+        protected void doStart() {
             // DO NOTHING !!
         }
 
         @Override
-        protected void doStop() throws Exception {
+        protected void doStop() {
             // DO NOTHING !!
         }
     }
 
     private static class OtherTestPlugin extends AbstractPlugin {
 
-        protected OtherTestPlugin(final String id) {
+        private OtherTestPlugin(final String id) {
             super(id);
         }
 
         @Override
-        protected void doStart() throws Exception {
+        protected void doStart() {
             // DO NOTHING !!
         }
 
         @Override
-        protected void doStop() throws Exception {
+        protected void doStop() {
             // DO NOTHING !!
         }
     }

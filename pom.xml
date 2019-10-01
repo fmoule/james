@@ -15,7 +15,6 @@
     <modules>
         <module>james-plugin</module>
         <module>james-agent</module>
-        <module>james-test</module>
     </modules>
 
     <!-- Propriétés du projet -->
