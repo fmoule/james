@@ -8,40 +8,23 @@
         <groupId>org.laruche.james</groupId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
-    <artifactId>james-agent</artifactId>
+    <artifactId>james-plugin</artifactId>
     <packaging>jar</packaging>
 
-    <name>James Agent</name>
+    <!-- Paramètres généraux -->
+    <name>James Plugin</name>
     <description>
-        Librairie comportant toutes les classes utilitaires afin de gérer des agents JADE.
+        Module groupant toutes les fonctionnalités liées au module
     </description>
 
-
     <dependencies>
-
         <dependency>
-            <groupId>org.laruche.james</groupId>
-            <artifactId>james-plugin</artifactId>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.9</version>
         </dependency>
 
-        <!-- ///// Librairies générales ///// -->
-
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.tilab.jade</groupId>
-            <artifactId>jade</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.tilab.jade</groupId>
-            <artifactId>jade-xml-codec</artifactId>
-        </dependency>
-
-        <!-- ///// Librairies de test ///// -->
+        <!-- Librairies de tests -->
 
         <dependency>
             <groupId>org.junit.jupiter</groupId>
