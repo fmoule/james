@@ -12,7 +12,7 @@ import static jade.lang.acl.MessageTemplate.MatchPerformative;
 import static java.lang.Thread.sleep;
 import static org.assertj.core.api.Assertions.assertThat;
 
-class SequentialHandlingMessageBehaviourTest extends AbstractAgentTestCase<String> {
+public class SequentialHandlingMessageBehaviourTest extends AbstractAgentTestCase<String> {
     private final SimpleTestAgent testingAgent = new SimpleTestAgent();
 
     @BeforeEach

@@ -8,7 +8,7 @@ import org.laruche.james.test.AbstractAgentTestCase;
 import static java.lang.Thread.sleep;
 import static org.assertj.core.api.Assertions.assertThat;
 
-class AbstractOneShotBehaviorTest extends AbstractAgentTestCase<Integer> {
+public class AbstractOneShotBehaviorTest extends AbstractAgentTestCase<Integer> {
 
     @BeforeEach
     void setUp() {

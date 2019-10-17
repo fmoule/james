@@ -3,6 +3,7 @@ package org.laruche.james.message;
 import jade.content.AgentAction;
 import jade.content.ContentManager;
 import jade.content.lang.Codec;
+import jade.content.lang.Codec.CodecException;
 import jade.content.lang.sl.SLCodec;
 import jade.content.onto.BeanOntology;
 import jade.content.onto.Ontology;
@@ -61,7 +62,7 @@ public class MessageUtils {
                                            final int performative,
                                            final BeanOntology ontology,
                                            final AgentAction agentAction)
-            throws Codec.CodecException, OntologyException {
+            throws CodecException, OntologyException {
         contentManager.registerOntology(ontology);
         final ACLMessage message = new ACLMessage(performative);
         message.setLanguage(DEFAULT_LANGUAGE.getName());
@@ -75,7 +76,7 @@ public class MessageUtils {
                                              final AID senderAID,
                                              final ACLMessage message,
                                              final AgentAction agentAction)
-            throws Codec.CodecException, OntologyException {
+            throws CodecException, OntologyException {
         message.setLanguage(DEFAULT_LANGUAGE.getName());
         contentManager.fillContent(message, new Action(senderAID, agentAction));
     }

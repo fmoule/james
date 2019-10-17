@@ -9,7 +9,7 @@ import org.laruche.james.test.AbstractAgentTestCase;
 import java.util.Objects;
 import java.util.function.Predicate;
 
-class LinkedMessageBehaviorTest extends AbstractAgentTestCase<String> {
+public class LinkedMessageBehaviorTest extends AbstractAgentTestCase<String> {
     private LinkedMessageBehavior behavior;
 
     @BeforeEach

@@ -68,6 +68,20 @@ class PluginManagerTest {
         assertThat(plugin).isNotNull();
     }
 
+    @Test
+    void shoudRemoveThePlugin() throws Exception {
+        pluginManager.addPlugin(new TestPlugin("plugin1"));
+        pluginManager.addPlugin(new TestPlugin("plugin2"));
+        pluginManager.addPlugin(new TestPlugin("plugin3"));
+        pluginManager.start();
+        Plugin plugin = pluginManager.findPlugin("plugin3");
+        assertThat(plugin).isNotNull();
+        assertThat(plugin.isStarted()).isTrue();
+        pluginManager.removePlugin(plugin);
+        plugin = pluginManager.findPlugin("plugin3");
+        assertThat(plugin).isNull();
+    }
+
     ///// Classes Internes /////
 
     private static class TestPlugin extends AbstractPlugin {

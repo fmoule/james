@@ -1,55 +1,92 @@
 package org.laruche.james.agent.web;
 
 import jade.content.onto.Ontology;
-import org.eclipse.jetty.server.Handler;
-import org.eclipse.jetty.server.Request;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.handler.AbstractHandler;
-import org.eclipse.jetty.server.handler.HandlerList;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
+import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.server.model.Resource;
+import org.glassfish.jersey.server.model.Resource.Builder;
+import org.glassfish.jersey.servlet.ServletContainer;
 import org.laruche.james.agent.AbstractAgent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import javax.ws.rs.ApplicationPath;
 
-import static javax.servlet.http.HttpServletResponse.SC_OK;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 /**
  * <p>
- * Agent se comportant en tant que serveur WEB. <br />
+ * Agent permettant d'exposer et/ou de se connecter à un protocol web. <br />
+ * De façon plus précise, cet agent gère en interne un serveur web permettant :
+ * <ul>
+ *     <li>d'exposer un site web</li>
+ *     <li>d'exposer une API Rest</li>
+ * </ul>
  * </p>
  */
 public class WebAgent extends AbstractAgent {
-    private Server webServer;
-    private List<Handler> handlers = new ArrayList<>();
+    private static final Logger LOGGER = LoggerFactory.getLogger(WebAgent.class);
+    private transient Server webServer;
     private Ontology ontology;
+    private final int port;
+    private final String basePath;
+    private WebAgentResourceConfig resourceConfig;
 
-    public WebAgent(final Ontology ontology) {
+    public WebAgent(final int port, final String basePath) {
         super();
-        this.ontology = ontology;
-        this.addHandler(new HelloHandler());
+        this.port = port;
+        this.basePath = basePath;
     }
 
     ///// Initialisation & Arret
 
     @Override
     protected void doSetUp() throws Exception {
-        this.webServer = new Server(8080);
-        this.webServer.setHandler(getHandlers());
+        LOGGER.info("==== Démarrage de l'agent Web {}", this.getName());
+        initWebServer();
         this.webServer.start();
-        this.webServer.join();
         super.doSetUp();
+    }
+
+    private void initWebServer() {
+        this.webServer = new Server(port);
+        if (resourceConfig == null) {
+            resourceConfig = new WebAgentResourceConfig();
+        }
+        final ServletContextHandler jettyHandler = new ServletContextHandler();
+        jettyHandler.addServlet(new ServletHolder(new ServletContainer(resourceConfig)), getPathSpec());
+        webServer.setHandler(jettyHandler);
     }
 
     @Override
     protected void doTakeDown() throws Exception {
+        LOGGER.info("==== Arret de l'agent Web {}", this.getName());
         if (!this.webServer.isStopped()) {
             this.webServer.stop();
         }
         super.doTakeDown();
+    }
+
+    ///// Méthodes générales :
+
+    public void registerResource(final String relativePath, final Class<?> resourceClass) {
+        if (this.resourceConfig == null) {
+            this.resourceConfig = new WebAgentResourceConfig();
+        }
+        this.resourceConfig.registerResource(relativePath, resourceClass);
+    }
+
+    ///// Getters & Setters :
+
+    private String getPathSpec() {
+        if (isEmpty(basePath)) {
+            return "/*";
+        } else {
+            return "/" + basePath + "/*";
+        }
     }
 
     @Override
@@ -57,33 +94,17 @@ public class WebAgent extends AbstractAgent {
         return ontology;
     }
 
-    ///// Méthodes générales :
-
-    public void addHandler(final Handler handler) {
-        this.handlers.add(handler);
-    }
-
-    private HandlerList getHandlers() {
-        final HandlerList handlers = new HandlerList();
-        for (Handler handler : this.handlers) {
-            handlers.addHandler(handler);
-        }
-        return handlers;
-    }
-
     ///// Classes privées :
 
-    private static class HelloHandler extends AbstractHandler {
+    @ApplicationPath("/")
+    private static class WebAgentResourceConfig extends ResourceConfig {
 
-        @Override
-        public void handle(final String target,
-                           final Request baseRequest,
-                           final HttpServletRequest request,
-                           final HttpServletResponse response) throws IOException, ServletException {
-            response.setContentType("text/html; charset=utf-8");
-            response.setStatus(SC_OK);
-            response.getWriter().println("<h1>Test OK !!</h1>");
-            baseRequest.setHandled(true);
+        void registerResource(final String relativePath, final Class<?> resourceClass) {
+            final Builder builder = Resource.builder(resourceClass);
+            builder.path(relativePath);
+            this.registerResources(builder.build());
         }
+
     }
+
 }
