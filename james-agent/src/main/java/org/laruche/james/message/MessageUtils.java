@@ -24,6 +24,54 @@ public class MessageUtils {
         // EMPTY
     }
 
+    ///// Gestion générale des message
+
+    /**
+     * Methode permettant de créer un message. <br />
+     * @param contentManager
+     * @param senderAID
+     * @param receiver
+     * @param performative
+     * @param ontology
+     * @param agentAction
+     * @return
+     * @throws CodecException
+     * @throws OntologyException
+     */
+    public static ACLMessage createMessage(final ContentManager contentManager,
+                                           final AID senderAID,
+                                           final AID receiver,
+                                           final int performative,
+                                           final BeanOntology ontology,
+                                           final AgentAction agentAction)
+            throws CodecException, OntologyException {
+        contentManager.registerOntology(ontology);
+        final ACLMessage message = new ACLMessage(performative);
+        message.setLanguage(DEFAULT_LANGUAGE.getName());
+        message.setOntology(ontology.getName());
+        message.addReceiver(receiver);
+        fillMessageWithAction(contentManager, senderAID, message, agentAction);
+        return message;
+    }
+
+
+    public static void fillMessageWithAction(final ContentManager contentManager,
+                                             final AID senderAID,
+                                             final ACLMessage message,
+                                             final AgentAction agentAction)
+            throws CodecException, OntologyException {
+        message.setLanguage(DEFAULT_LANGUAGE.getName());
+        contentManager.fillContent(message, new Action(senderAID, agentAction));
+    }
+
+    public static void fillMessageWithBean(final ACLMessage message,
+                                           final Serializable javaBean) throws IOException {
+        if (message == null || javaBean == null) {
+            return;
+        }
+        message.setContentObject(javaBean);
+    }
+
     ///// Gestion des réponses :
 
     public static ACLMessage createResponse(final ACLMessage message,
@@ -45,6 +93,8 @@ public class MessageUtils {
         return response;
     }
 
+    ///// Gestion des message d'erreur
+
     /**
      * Création d'une réponse concernant une erreur
      *
@@ -56,36 +106,5 @@ public class MessageUtils {
         return createResponse(message, FAILURE, errorMessage);
     }
 
-    public static ACLMessage createMessage(final ContentManager contentManager,
-                                           final AID senderAID,
-                                           final AID receiver,
-                                           final int performative,
-                                           final BeanOntology ontology,
-                                           final AgentAction agentAction)
-            throws CodecException, OntologyException {
-        contentManager.registerOntology(ontology);
-        final ACLMessage message = new ACLMessage(performative);
-        message.setLanguage(DEFAULT_LANGUAGE.getName());
-        message.setOntology(ontology.getName());
-        message.addReceiver(receiver);
-        fillMessageWithAction(contentManager, senderAID, message, agentAction);
-        return message;
-    }
 
-    public static void fillMessageWithAction(final ContentManager contentManager,
-                                             final AID senderAID,
-                                             final ACLMessage message,
-                                             final AgentAction agentAction)
-            throws CodecException, OntologyException {
-        message.setLanguage(DEFAULT_LANGUAGE.getName());
-        contentManager.fillContent(message, new Action(senderAID, agentAction));
-    }
-
-    public static void fillMessageWithBean(final ACLMessage message,
-                                           final Serializable javaBean) throws IOException {
-        if (message == null || javaBean == null) {
-            return;
-        }
-        message.setContentObject(javaBean);
-    }
 }

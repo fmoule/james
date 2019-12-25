@@ -11,8 +11,8 @@ import java.util.function.Predicate;
  * Comportement
  * </p>
  */
-public class LinkedMessageBehavior extends AbstractHandlingMessageBehaviour {
-    private final Map<Predicate<ACLMessage>, AbstractHandlingMessageBehaviour> behaviors = new HashMap<>();
+public class LinkedMessageBehavior extends AbstractHandlingMessageBehavior {
+    private final Map<Predicate<ACLMessage>, AbstractHandlingMessageBehavior> behaviors = new HashMap<>();
 
     ///// Méthode de la classe AbstractHandlingMessageBehavior :
 
@@ -32,7 +32,7 @@ public class LinkedMessageBehavior extends AbstractHandlingMessageBehaviour {
      * @param predicate : prédicat associé
      * @param behavior  : comportement
      */
-    public void addBehavior(final Predicate<ACLMessage> predicate, final AbstractHandlingMessageBehaviour behavior) {
+    public void addBehavior(final Predicate<ACLMessage> predicate, final AbstractHandlingMessageBehavior behavior) {
         this.behaviors.put(predicate, behavior);
     }
 

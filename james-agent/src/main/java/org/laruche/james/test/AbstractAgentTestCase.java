@@ -9,8 +9,8 @@ import jade.content.onto.OntologyException;
 import jade.core.AID;
 import jade.lang.acl.ACLMessage;
 import org.laruche.james.agent.AbstractAgent;
-import org.laruche.james.agent.behavior.AbstractHandlingMessageBehaviour;
-import org.laruche.james.agent.behavior.SequentialHandlingMessageBehaviour;
+import org.laruche.james.agent.behavior.AbstractHandlingMessageBehavior;
+import org.laruche.james.agent.behavior.SequentialHandlingMessageBehavior;
 import org.laruche.james.message.MessageUtils;
 import org.laruche.james.plugin.AgentPlugin;
 
@@ -95,7 +95,7 @@ public abstract class AbstractAgentTestCase<T> {
      */
     public static class TestManagerAgent<U> extends AbstractAgent {
         private TestResult<U> testResult = new TestResult<>();
-        private final Map<Integer, SequentialHandlingMessageBehaviour> msgHandlingBehaviour = new HashMap<>();
+        private final Map<Integer, SequentialHandlingMessageBehavior> msgHandlingBehaviour = new HashMap<>();
         private Ontology ontology = null;
 
         ///// Constructors :
@@ -115,10 +115,10 @@ public abstract class AbstractAgentTestCase<T> {
 
         ///// Méthodes générales
 
-        public void addHandlingMessageBehaviour(final Integer performative, final AbstractHandlingMessageBehaviour handlingMessageBehavior) {
-            final SequentialHandlingMessageBehaviour seqBehaviour;
+        public void addHandlingMessageBehaviour(final Integer performative, final AbstractHandlingMessageBehavior handlingMessageBehavior) {
+            final SequentialHandlingMessageBehavior seqBehaviour;
             if (!msgHandlingBehaviour.containsKey(performative)) {
-                seqBehaviour = new SequentialHandlingMessageBehaviour(MatchPerformative(performative));
+                seqBehaviour = new SequentialHandlingMessageBehavior(MatchPerformative(performative));
                 this.addBehaviour(seqBehaviour);
                 msgHandlingBehaviour.put(performative, seqBehaviour);
             } else {
@@ -147,16 +147,21 @@ public abstract class AbstractAgentTestCase<T> {
      * Agent permettant de tester.
      */
     public static class SimpleTestAgent extends AbstractAgent {
+        private Ontology ontology = null;
 
         @Override
         protected Ontology getOntologyInstance() {
-            return null;
+            return ontology;
+        }
+
+        public void setOntology(final Ontology ontology) {
+            this.ontology = ontology;
         }
     }
 
     ///// Behavior :
 
-    private static class ShowErrorBehavior<U> extends AbstractHandlingMessageBehaviour {
+    private static class ShowErrorBehavior<U> extends AbstractHandlingMessageBehavior {
         private final TestResult<U> testResult;
 
         ShowErrorBehavior(final TestResult<U> testResult) {
@@ -174,7 +179,7 @@ public abstract class AbstractAgentTestCase<T> {
         }
     }
 
-    private static class GetResponseMessageBehavior<U> extends AbstractHandlingMessageBehaviour {
+    private static class GetResponseMessageBehavior<U> extends AbstractHandlingMessageBehavior {
         private final TestResult<U> testResult;
 
         private GetResponseMessageBehavior(final TestResult<U> testResult) {
