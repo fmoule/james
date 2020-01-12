@@ -1,6 +1,11 @@
 package org.laruche.james.agent.web;
 
+import jade.content.AgentAction;
+import jade.content.lang.Codec;
+import jade.content.onto.BeanOntology;
 import jade.content.onto.Ontology;
+import jade.content.onto.OntologyException;
+import jade.core.AID;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -13,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import javax.ws.rs.ApplicationPath;
 
 import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static org.laruche.james.message.MessageUtils.createMessage;
 
 /**
  * <p>
@@ -91,7 +97,7 @@ public class WebAgent extends AbstractAgent {
     ///// Getters & Setters :
 
     @Override
-    protected Ontology getOntologyInstance() {
+    protected Ontology getOntology() {
         return ontology;
     }
 
@@ -118,4 +124,37 @@ public class WebAgent extends AbstractAgent {
     }
 
 
+    /**
+     * <p>
+     * Classe abstraite représentant les ressources Jersey susceptibles d'etre gérées
+     * par les agents de type WebAgent
+     * </p>
+     *
+     * @see WebAgent
+     */
+    public abstract static class AbstractWebAgentResource {
+        private WebAgent webAgent;
+
+        public WebAgent getWebAgent() {
+            return webAgent;
+        }
+
+        public void setWebAgent(final WebAgent webAgent) {
+            this.webAgent = webAgent;
+        }
+
+        protected void sendMessage(final AID receiverAID,
+                                   final int performative,
+                                   final BeanOntology ontology,
+                                   final AgentAction agentAction)
+                throws Codec.CodecException, OntologyException {
+            final WebAgent webAgent = this.getWebAgent();
+            webAgent.send(createMessage(webAgent.getContentManager(),
+                    webAgent.getAID(),
+                    receiverAID,
+                    performative,
+                    ontology,
+                    agentAction));
+        }
+    }
 }

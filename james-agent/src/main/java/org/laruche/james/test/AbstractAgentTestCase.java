@@ -1,17 +1,11 @@
 package org.laruche.james.test;
 
-import jade.content.AgentAction;
 import jade.content.ContentManager;
-import jade.content.lang.Codec;
-import jade.content.onto.BeanOntology;
 import jade.content.onto.Ontology;
-import jade.content.onto.OntologyException;
-import jade.core.AID;
 import jade.lang.acl.ACLMessage;
 import org.laruche.james.agent.AbstractAgent;
 import org.laruche.james.agent.behavior.AbstractHandlingMessageBehavior;
 import org.laruche.james.agent.behavior.SequentialHandlingMessageBehavior;
-import org.laruche.james.message.MessageUtils;
 import org.laruche.james.plugin.AgentPlugin;
 
 import java.util.HashMap;
@@ -20,10 +14,13 @@ import java.util.Map;
 import static jade.lang.acl.ACLMessage.*;
 import static jade.lang.acl.MessageTemplate.MatchPerformative;
 import static jade.lang.acl.MessageTemplate.or;
+import static java.lang.Thread.sleep;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.laruche.james.test.AbstractAgentTestCase.TestResultStatus.ERROR;
+import static org.laruche.james.test.AbstractAgentTestCase.TestResultStatus.OK;
 
 public abstract class AbstractAgentTestCase<T> {
+    private static final int WAITING_TIME = 4000;
     protected AgentPlugin agentPlugin;
     protected TestManagerAgent<T> testManagerAgent;
 
@@ -38,21 +35,11 @@ public abstract class AbstractAgentTestCase<T> {
         }
     }
 
-    ///// Méthodes générales :
-
+    ///// Gestion des messages :
 
     protected void sendMessage(final ACLMessage message) {
         testManagerAgent.send(message);
     }
-
-    protected void sendMessage(final String receiverName,
-                               final int performative,
-                               final BeanOntology beanOntology,
-                               final AgentAction agentAction)
-            throws Codec.CodecException, OntologyException {
-        this.sendMessage(this.createMessage(new AID(receiverName, false), performative, beanOntology, agentAction));
-    }
-
 
     ////// Getters & Setters :
 
@@ -64,27 +51,10 @@ public abstract class AbstractAgentTestCase<T> {
         this.testManagerAgent.setTestResult(testResult);
     }
 
-    private AID getAID() {
-        return this.testManagerAgent.getAID();
+    protected void startAgentPlugin() throws Exception {
+        this.agentPlugin.start();
+        sleep(WAITING_TIME);
     }
-
-    private ContentManager getContentManager() {
-        return this.testManagerAgent.getContentManager();
-    }
-
-    private ACLMessage createMessage(final AID receiverAID,
-                                     final int performative,
-                                     final BeanOntology ontology,
-                                     final AgentAction agentAction)
-            throws Codec.CodecException, OntologyException {
-        return MessageUtils.createMessage(this.getContentManager(),
-                this.getAID(),
-                receiverAID,
-                performative,
-                ontology,
-                agentAction);
-    }
-
 
     ////////////////////////
     ///// Classes Internes :
@@ -108,11 +78,6 @@ public abstract class AbstractAgentTestCase<T> {
             this.addHandlingMessageBehaviour(REQUEST, getResponseMessageBehavior);
         }
 
-        public TestManagerAgent(final Ontology ontology) {
-            this();
-            this.ontology = ontology;
-        }
-
         ///// Méthodes générales
 
         public void addHandlingMessageBehaviour(final Integer performative, final AbstractHandlingMessageBehavior handlingMessageBehavior) {
@@ -128,17 +93,26 @@ public abstract class AbstractAgentTestCase<T> {
         }
 
         @Override
-        protected Ontology getOntologyInstance() {
+        protected Ontology getOntology() {
             return ontology;
+        }
+
+        public void setOntology(final Ontology ontology) {
+            this.ontology = ontology;
+            final ContentManager contentManager = this.getContentManager();
+            if (this.ontology != null
+                    && contentManager != null) {
+                contentManager.registerOntology(this.ontology);
+            }
         }
 
         ///// Getters & Setters :
 
-        TestResult<U> getTestResult() {
+        protected TestResult<U> getTestResult() {
             return testResult;
         }
 
-        void setTestResult(final TestResult<U> testResult) {
+        protected void setTestResult(final TestResult<U> testResult) {
             this.testResult = testResult;
         }
     }
@@ -150,7 +124,7 @@ public abstract class AbstractAgentTestCase<T> {
         private Ontology ontology = null;
 
         @Override
-        protected Ontology getOntologyInstance() {
+        protected Ontology getOntology() {
             return ontology;
         }
 
@@ -202,7 +176,7 @@ public abstract class AbstractAgentTestCase<T> {
      */
     public static class TestResult<V> {
         private static final String EMPTY_STRING = "";
-        private TestResultStatus status = TestResultStatus.OK;
+        private TestResultStatus status = OK;
         private String errorMessage = EMPTY_STRING;
         private String responseMessage = EMPTY_STRING;
         private V value;

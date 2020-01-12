@@ -31,7 +31,6 @@ import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.laruche.james.bean.TestBeanOntology.TEST_BEAN_ONTOLOGY;
-import static org.laruche.james.message.MessageUtils.*;
 
 public class WebAgentTest extends AbstractWebAgentTestCase<String> {
     private static final int WAITING_TIME = 4000;
@@ -164,11 +163,12 @@ public class WebAgentTest extends AbstractWebAgentTestCase<String> {
                         return;
                     }
                     testBeans.add(((AddTestBeanAction) agentAction).getTestBean());
-                    this.sendMessage(createResponse(message, INFORM, "Ajout OK"));
-                } catch (final Exception e) {
-                    this.sendMessage(createFailureResponse(message, "ERROR : " + e.getMessage()));
+                    this.sendResponse(message, INFORM, "Ajout OK");
+                } catch (final Exception exception) {
+                    this.sendFailureMessage(message, exception);
                 }
             }
+
         }
 
         private class DeleteTestBeanBehavior extends AbstractHandlingMessageBehavior {
@@ -186,18 +186,19 @@ public class WebAgentTest extends AbstractWebAgentTestCase<String> {
                     }
                     final Predicate<TestBean> predicate = ((DeleteTestBeanAction) agentAction).getPredicate();
                     testBeans.removeAll(testBeans.stream().filter(predicate).collect(toList()));
-                    this.sendMessage(createResponse(message, INFORM, "Suppression Ok"));
+                    this.sendResponse(message, INFORM, "Suppression Ok");
                 } catch (final Exception e) {
-                    this.sendMessage(createFailureResponse(message, "ERROR : " + e.getMessage()));
+                    this.sendFailureMessage(message, e);
                 }
             }
+
         }
     }
 
     ///// Resources utilisées :
 
     @Path("test")
-    public static class TestResource extends AbstractWebAgentResource {
+    public static class TestResource extends WebAgent.AbstractWebAgentResource {
 
         @GET
         public String handleGET() {
@@ -208,7 +209,7 @@ public class WebAgentTest extends AbstractWebAgentTestCase<String> {
     }
 
     @Path("test")
-    public static class TestGetParameterResource extends AbstractWebAgentResource {
+    public static class TestGetParameterResource extends WebAgent.AbstractWebAgentResource {
 
         @GET
         public String handleGET(@QueryParam("param") final String param) {
@@ -222,7 +223,7 @@ public class WebAgentTest extends AbstractWebAgentTestCase<String> {
     }
 
     @Path("test")
-    public static class TestGetPathParameterResource extends AbstractWebAgentResource {
+    public static class TestGetPathParameterResource extends WebAgent.AbstractWebAgentResource {
 
         @Path("/{param}")
         @GET
@@ -237,7 +238,7 @@ public class WebAgentTest extends AbstractWebAgentTestCase<String> {
     }
 
     @Path("test/put")
-    public static class TestPutInDAOResource extends AbstractWebAgentResource {
+    public static class TestPutInDAOResource extends WebAgent.AbstractWebAgentResource {
 
         @PUT
         public String putInDAO(@QueryParam("firstName") final String firstName,
