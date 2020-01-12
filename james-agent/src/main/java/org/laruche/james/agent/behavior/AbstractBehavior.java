@@ -3,7 +3,8 @@ package org.laruche.james.agent.behavior;
 import jade.content.AgentAction;
 import jade.content.ContentElement;
 import jade.content.ContentManager;
-import jade.content.lang.Codec;
+import jade.content.lang.Codec.CodecException;
+import jade.content.onto.Ontology;
 import jade.content.onto.OntologyException;
 import jade.content.onto.basic.Action;
 import jade.core.AID;
@@ -11,9 +12,10 @@ import jade.core.Agent;
 import jade.core.behaviours.SimpleBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
-import org.laruche.james.message.MessageUtils;
 
-import java.io.Serializable;
+import static jade.lang.acl.ACLMessage.FAILURE;
+import static org.laruche.james.message.MessageUtils.createMessage;
+import static org.laruche.james.message.MessageUtils.createResponse;
 
 /**
  * <p>
@@ -55,19 +57,49 @@ public abstract class AbstractBehavior extends SimpleBehaviour {
         return this.getAgent().receive(msgTemplate);
     }
 
+    ///// Envoi des messages :
 
-    /**
-     * @param message     : message à compléter
-     * @param agentAction : action d'agent
-     * @throws Codec.CodecException    : En cas d'exception du au codec
-     * @throws OntologyException : En cas d'exception avec l'ontologie
-     */
-    protected void fillMessageWithAction(final ACLMessage message,
-                                         final AgentAction agentAction) throws Codec.CodecException, OntologyException {
-        MessageUtils.fillMessageWithAction(this.getContentManager(), getCurrentAID(), message, agentAction);
+    protected void sendMessage(final AID receiver, final int performative, final String message) {
+        final ACLMessage msg = createMessage(this.getAgent().getAID(), receiver, performative);
+        msg.setContent(message);
+        this.getAgent().send(msg);
     }
 
-    protected <T extends AgentAction> T extractAgentActionFromMessage(final ACLMessage message) throws Codec.CodecException, OntologyException {
+    protected void sendAgentAction(final AID receiver,
+                                   final int performative,
+                                   final Ontology ontology,
+                                   final AgentAction agentAction)
+            throws CodecException, OntologyException {
+        final Agent behaviorAgent = this.getAgent();
+        final ACLMessage message = createMessage(behaviorAgent.getAID(), receiver, performative);
+        if (ontology != null) {
+            message.setOntology(ontology.getName());
+            this.getContentManager().registerOntology(ontology);
+        }
+        this.getContentManager().fillContent(message, agentAction);
+        behaviorAgent.send(message);
+    }
+
+    protected void sendResponse(final ACLMessage message,
+                                final int performative,
+                                final String responseContent) {
+        this.getAgent().send(createResponse(message, performative, responseContent));
+    }
+
+    protected void sendFailureMessage(final ACLMessage message, final Exception e) {
+        this.getAgent().send(createResponse(message, FAILURE, "ERROR : " + e.getMessage()));
+    }
+
+    protected void sendFailureMessage(final AID receiver, final String errorMessage) {
+        final Agent agent = this.getAgent();
+        final ACLMessage message = createMessage(agent.getAID(), receiver, FAILURE);
+        message.setContent(errorMessage);
+        agent.send(message);
+    }
+
+    ///// Actions diverses :
+
+    protected <T extends AgentAction> T extractAgentActionFromMessage(final ACLMessage message) throws CodecException, OntologyException {
         final ContentElement contentElement = this.getContentManager().extractContent(message);
         if (!(contentElement instanceof Action)) {
             return null;
@@ -76,34 +108,9 @@ public abstract class AbstractBehavior extends SimpleBehaviour {
             //noinspection unchecked
             return (T) ((Action) contentElement).getAction();
         } catch (final ClassCastException e) {
-            throw new Codec.CodecException(e.getMessage(), e);
+            throw new CodecException(e.getMessage(), e);
         }
     }
 
-    protected <T extends Serializable> T extractJavaBeanFromMessage(final ACLMessage message) throws Exception {
-        if (message == null) {
-            return null;
-        }
-        try {
-            //noinspection unchecked
-            return (T) message.getContentObject();
-        } catch (final ClassCastException classCastException) {
-            throw new Exception(classCastException.getMessage(), classCastException);
-        }
-    }
 
-    protected void sendMessage(final ACLMessage message) {
-        this.getAgent().send(message);
-    }
-
-    ///// Getters & Setters :
-
-    /**
-     * Retourne l'identifiant de l'agent du comportement; <br />
-     *
-     * @return identifiant
-     */
-    protected AID getCurrentAID() {
-        return this.getAgent().getAID();
-    }
 }

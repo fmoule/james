@@ -38,10 +38,10 @@ public class SequentialHandlingMessageBehaviourTest extends AbstractAgentTestCas
 
     @Test
     void shouldExecuteAllTasks() throws Exception {
-        final SequentialHandlingMessageBehaviour seqBehaviour = new SequentialHandlingMessageBehaviour();
+        final SequentialHandlingMessageBehavior seqBehaviour = new SequentialHandlingMessageBehavior();
         final TestResult<String> testResult = this.getTestResult();
-        seqBehaviour.addSubBehaviour(new FirstTestBehaviour(testResult));
-        seqBehaviour.addSubBehaviour(new SecundTestBehaviour(testResult));
+        seqBehaviour.addSubBehaviour(new FirstTestBehavior(testResult));
+        seqBehaviour.addSubBehaviour(new SecundTestBehavior(testResult));
         this.testingAgent.addBehaviour(seqBehaviour);
         this.agentPlugin.start();
         sleep(2000);
@@ -53,10 +53,10 @@ public class SequentialHandlingMessageBehaviourTest extends AbstractAgentTestCas
 
     ///// Classes internes :
 
-    private static class FirstTestBehaviour extends AbstractHandlingMessageBehaviour {
+    private static class FirstTestBehavior extends AbstractHandlingMessageBehavior {
         private final TestResult<String> testResult;
 
-        FirstTestBehaviour(final TestResult<String> testResult) {
+        FirstTestBehavior(final TestResult<String> testResult) {
             super(MatchPerformative(REQUEST));
             this.testResult = testResult;
         }
@@ -67,10 +67,10 @@ public class SequentialHandlingMessageBehaviourTest extends AbstractAgentTestCas
         }
     }
 
-    private static class SecundTestBehaviour extends AbstractHandlingMessageBehaviour {
+    private static class SecundTestBehavior extends AbstractHandlingMessageBehavior {
         private final TestResult<String> testResult;
 
-        SecundTestBehaviour(final TestResult<String> testResult) {
+        SecundTestBehavior(final TestResult<String> testResult) {
             super(MatchPerformative(REQUEST));
             this.testResult = testResult;
         }

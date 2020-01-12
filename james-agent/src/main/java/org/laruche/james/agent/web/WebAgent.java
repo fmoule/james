@@ -1,13 +1,15 @@
 package org.laruche.james.agent.web;
 
+import jade.content.AgentAction;
+import jade.content.lang.Codec;
+import jade.content.onto.BeanOntology;
 import jade.content.onto.Ontology;
-import org.apache.commons.lang3.StringUtils;
+import jade.content.onto.OntologyException;
+import jade.core.AID;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.server.model.Resource;
-import org.glassfish.jersey.server.model.Resource.Builder;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.laruche.james.agent.AbstractAgent;
 import org.slf4j.Logger;
@@ -16,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import javax.ws.rs.ApplicationPath;
 
 import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static org.laruche.james.message.MessageUtils.createMessage;
 
 /**
  * <p>
@@ -35,13 +38,15 @@ public class WebAgent extends AbstractAgent {
     private final String basePath;
     private WebAgentResourceConfig resourceConfig;
 
+    ///// Constructeurs :
+
     public WebAgent(final int port, final String basePath) {
         super();
         this.port = port;
         this.basePath = basePath;
     }
 
-    ///// Initialisation & Arret
+    ///// Initialisation & Arret :
 
     @Override
     protected void doSetUp() throws Exception {
@@ -49,16 +54,6 @@ public class WebAgent extends AbstractAgent {
         initWebServer();
         this.webServer.start();
         super.doSetUp();
-    }
-
-    private void initWebServer() {
-        this.webServer = new Server(port);
-        if (resourceConfig == null) {
-            resourceConfig = new WebAgentResourceConfig();
-        }
-        final ServletContextHandler jettyHandler = new ServletContextHandler();
-        jettyHandler.addServlet(new ServletHolder(new ServletContainer(resourceConfig)), getPathSpec());
-        webServer.setHandler(jettyHandler);
     }
 
     @Override
@@ -70,18 +65,9 @@ public class WebAgent extends AbstractAgent {
         super.doTakeDown();
     }
 
-    ///// Méthodes générales :
+    ///// Méthodes privées :
 
-    public void registerResource(final String relativePath, final Class<?> resourceClass) {
-        if (this.resourceConfig == null) {
-            this.resourceConfig = new WebAgentResourceConfig();
-        }
-        this.resourceConfig.registerResource(relativePath, resourceClass);
-    }
-
-    ///// Getters & Setters :
-
-    private String getPathSpec() {
+    private static String processPathSpec(final String basePath) {
         if (isEmpty(basePath)) {
             return "/*";
         } else {
@@ -89,22 +75,86 @@ public class WebAgent extends AbstractAgent {
         }
     }
 
+    private void initWebServer() {
+        this.webServer = new Server(port);
+        if (resourceConfig == null) {
+            resourceConfig = new WebAgentResourceConfig(this);
+        }
+        final ServletContextHandler jettyHandler = new ServletContextHandler();
+        jettyHandler.addServlet(new ServletHolder(new ServletContainer(resourceConfig)), processPathSpec(basePath));
+        webServer.setHandler(jettyHandler);
+    }
+
+    ///// Méthodes générales :
+
+    public void registerSimpleResource(final AbstractWebAgentResource webAgentResource) {
+        if (this.resourceConfig == null) {
+            this.resourceConfig = new WebAgentResourceConfig(this);
+        }
+        this.resourceConfig.registerResource(webAgentResource);
+    }
+
+    ///// Getters & Setters :
+
     @Override
-    protected Ontology getOntologyInstance() {
+    protected Ontology getOntology() {
         return ontology;
     }
 
+    public void setOntology(final Ontology ontology) {
+        this.ontology = ontology;
+    }
+
+    ///////////////////////
     ///// Classes privées :
+    ///////////////////////
 
     @ApplicationPath("/")
     private static class WebAgentResourceConfig extends ResourceConfig {
+        private final WebAgent webAgent;
 
-        void registerResource(final String relativePath, final Class<?> resourceClass) {
-            final Builder builder = Resource.builder(resourceClass);
-            builder.path(relativePath);
-            this.registerResources(builder.build());
+        private WebAgentResourceConfig(final WebAgent webAgent) {
+            this.webAgent = webAgent;
         }
 
+        void registerResource(final AbstractWebAgentResource webAgentResource) {
+            webAgentResource.setWebAgent(webAgent);
+            this.registerInstances(webAgentResource);
+        }
     }
 
+
+    /**
+     * <p>
+     * Classe abstraite représentant les ressources Jersey susceptibles d'etre gérées
+     * par les agents de type WebAgent
+     * </p>
+     *
+     * @see WebAgent
+     */
+    public abstract static class AbstractWebAgentResource {
+        private WebAgent webAgent;
+
+        public WebAgent getWebAgent() {
+            return webAgent;
+        }
+
+        public void setWebAgent(final WebAgent webAgent) {
+            this.webAgent = webAgent;
+        }
+
+        protected void sendMessage(final AID receiverAID,
+                                   final int performative,
+                                   final BeanOntology ontology,
+                                   final AgentAction agentAction)
+                throws Codec.CodecException, OntologyException {
+            final WebAgent webAgent = this.getWebAgent();
+            webAgent.send(createMessage(webAgent.getContentManager(),
+                    webAgent.getAID(),
+                    receiverAID,
+                    performative,
+                    ontology,
+                    agentAction));
+        }
+    }
 }

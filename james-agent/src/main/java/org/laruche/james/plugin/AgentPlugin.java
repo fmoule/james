@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 
 import static jade.core.Profile.*;
+import static java.lang.Thread.sleep;
 import static java.util.Arrays.asList;
 
 public class AgentPlugin extends AbstractPlugin {
@@ -33,7 +34,7 @@ public class AgentPlugin extends AbstractPlugin {
         try {
             if (mainContainer != null) {
                 this.mainContainer.kill();
-                Thread.sleep(1000);
+                sleep(1000);
             }
         } catch (final Exception controllerException) {
             LOGGER.error(controllerException.getMessage(), controllerException);
@@ -138,6 +139,11 @@ public class AgentPlugin extends AbstractPlugin {
         } catch (final ControllerException controllerException) {
             return null;
         }
+    }
+
+    public void clearAgents() {
+        this.agentsToStart.clear();
+        this.agentsToStartByClass.clear();
     }
 
     ///// Classes Internes :

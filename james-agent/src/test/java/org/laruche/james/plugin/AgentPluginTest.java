@@ -61,7 +61,7 @@ class AgentPluginTest {
         }
 
         @Override
-        protected Ontology getOntologyInstance() {
+        protected Ontology getOntology() {
             return null;
         }
     }
