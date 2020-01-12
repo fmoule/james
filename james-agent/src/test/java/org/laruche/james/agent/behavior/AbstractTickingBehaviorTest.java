@@ -42,7 +42,7 @@ public class AbstractTickingBehaviorTest extends AbstractAgentTestCase<Integer> 
         }
 
         @Override
-        protected Ontology getOntologyInstance() {
+        protected Ontology getOntology() {
             return null;
         }
     }

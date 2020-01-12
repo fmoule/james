@@ -61,7 +61,7 @@ public abstract class AbstractAgent extends Agent {
     protected void setup() {
         try {
             this.getContentManager().registerLanguage(getAgentLanguage());
-            final Ontology ontology = getOntologyInstance();
+            final Ontology ontology = getOntology();
             if (ontology != null) {
                 this.getContentManager().registerOntology(ontology);
             }
@@ -110,8 +110,7 @@ public abstract class AbstractAgent extends Agent {
 
     ///// Méthodes abstraites :
 
-    protected abstract Ontology getOntologyInstance();
-
+    protected abstract Ontology getOntology();
 
     protected Codec getAgentLanguage() {
         return DEFAULT_LANGUAGE;
@@ -127,12 +126,16 @@ public abstract class AbstractAgent extends Agent {
         super.addBehaviour(behaviour);
     }
 
+    /**
+     * Méthode permettant d'ajouter une description à l'agent. <br />
+     *
+     * @param serviceDescription : Description du service proposé par l'agent.
+     */
     public void addServiceDescription(final ServiceDescription serviceDescription) {
         serviceDescriptions.add(serviceDescription);
     }
 
     ///// Getters & Setters /////
-
 
     /**
      * Méthode montrant si l'agent est démarré

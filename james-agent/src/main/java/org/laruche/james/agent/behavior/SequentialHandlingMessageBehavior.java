@@ -13,20 +13,20 @@ import java.util.List;
  * @see jade.core.behaviours.SequentialBehaviour
  * </p>
  */
-public class SequentialHandlingMessageBehaviour extends AbstractHandlingMessageBehaviour {
-    private final List<AbstractHandlingMessageBehaviour> subBehaviours = new ArrayList<>();
+public class SequentialHandlingMessageBehavior extends AbstractHandlingMessageBehavior {
+    private final List<AbstractHandlingMessageBehavior> subBehaviours = new ArrayList<>();
 
-    public SequentialHandlingMessageBehaviour() {
+    public SequentialHandlingMessageBehavior() {
         super();
     }
 
-    public SequentialHandlingMessageBehaviour(final MessageTemplate msgPredicate) {
+    public SequentialHandlingMessageBehavior(final MessageTemplate msgPredicate) {
         super(msgPredicate);
     }
 
     @Override
     public void doAction(final ACLMessage message) {
-        for (AbstractHandlingMessageBehaviour subBehaviour : subBehaviours) {
+        for (AbstractHandlingMessageBehavior subBehaviour : subBehaviours) {
             subBehaviour.doAction(message);
         }
     }
@@ -36,7 +36,7 @@ public class SequentialHandlingMessageBehaviour extends AbstractHandlingMessageB
      *
      * @param handlingMessageBehavior : comportement
      */
-    public void addSubBehaviour(final AbstractHandlingMessageBehaviour handlingMessageBehavior) {
+    public void addSubBehaviour(final AbstractHandlingMessageBehavior handlingMessageBehavior) {
         this.subBehaviours.add(handlingMessageBehavior);
     }
 }

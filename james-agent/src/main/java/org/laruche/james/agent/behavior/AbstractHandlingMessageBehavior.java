@@ -3,14 +3,14 @@ package org.laruche.james.agent.behavior;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 
-public abstract class AbstractHandlingMessageBehaviour extends AbstractBehavior {
+public abstract class AbstractHandlingMessageBehavior extends AbstractBehavior {
     private MessageTemplate msgPredicate;
 
-    protected AbstractHandlingMessageBehaviour(final MessageTemplate msgPredicate) {
+    protected AbstractHandlingMessageBehavior(final MessageTemplate msgPredicate) {
         this.msgPredicate = msgPredicate;
     }
 
-    protected AbstractHandlingMessageBehaviour() {
+    protected AbstractHandlingMessageBehavior() {
         this.msgPredicate = null;
     }
 
