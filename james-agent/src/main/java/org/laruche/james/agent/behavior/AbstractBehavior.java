@@ -59,10 +59,16 @@ public abstract class AbstractBehavior extends SimpleBehaviour {
 
     ///// Envoi des messages :
 
+    protected void sendMessage(final ACLMessage message) {
+        if (message != null) {
+            this.getAgent().send(message);
+        }
+    }
+
     protected void sendMessage(final AID receiver, final int performative, final String message) {
         final ACLMessage msg = createMessage(this.getAgent().getAID(), receiver, performative);
         msg.setContent(message);
-        this.getAgent().send(msg);
+        this.sendMessage(msg);
     }
 
     protected void sendAgentAction(final AID receiver,

@@ -38,6 +38,7 @@ public abstract class AbstractAgentTestCase<T> {
     ///// Gestion des messages :
 
     protected void sendMessage(final ACLMessage message) {
+        message.setSender(this.testManagerAgent.getAID());
         testManagerAgent.send(message);
     }
 
