@@ -82,7 +82,7 @@ public abstract class AbstractBehavior extends SimpleBehaviour {
             message.setOntology(ontology.getName());
             this.getContentManager().registerOntology(ontology);
         }
-        this.getContentManager().fillContent(message, agentAction);
+        this.getContentManager().fillContent(message, new Action(behaviorAgent.getAID(), agentAction));
         behaviorAgent.send(message);
     }
 
