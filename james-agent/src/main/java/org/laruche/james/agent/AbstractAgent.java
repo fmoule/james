@@ -21,7 +21,9 @@ import static org.laruche.james.message.MessageUtils.DEFAULT_LANGUAGE;
  * communes. <br />
  * </p>
  */
-public abstract class AbstractAgent extends Agent {
+public abstract class AbstractAgent
+        extends Agent
+        implements JadeMessageHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractAgent.class);
 
     private final Set<Behaviour> closeableBehaviours = new HashSet<>();
@@ -54,6 +56,12 @@ public abstract class AbstractAgent extends Agent {
         return (this.getAID().equals(((AbstractAgent) obj).getAID()));
     }
 
+    ///// Méthode(s) de l'interface JadeMessageHandler
+
+    @Override
+    public Agent getAgent() {
+        return this;
+    }
 
     ///// Méthode de la classe Agent :
 
