@@ -32,6 +32,7 @@ import static org.laruche.james.message.MessageUtils.createMessage;
  */
 public class WebAgent extends AbstractAgent {
     private static final Logger LOGGER = LoggerFactory.getLogger(WebAgent.class);
+    public static final String SLASH = "/";
     private transient Server webServer;
     private Ontology ontology;
     private final int port;
@@ -70,8 +71,10 @@ public class WebAgent extends AbstractAgent {
     private static String processPathSpec(final String basePath) {
         if (isEmpty(basePath)) {
             return "/*";
+        } else if (basePath.startsWith(SLASH)) {
+            return basePath.trim() + "/*";
         } else {
-            return "/" + basePath + "/*";
+            return SLASH + basePath.trim() + "/*";
         }
     }
 

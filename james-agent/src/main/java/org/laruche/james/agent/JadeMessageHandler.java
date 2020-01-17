@@ -23,6 +23,12 @@ import static org.laruche.james.message.MessageUtils.createResponse;
  */
 public interface JadeMessageHandler {
 
+    /**
+     * Méthode abstraite permettant de donner l'agent
+     * sous-jacent. <br />
+     *
+     * @return agent
+     */
     Agent getAgent();
 
     ///// Méthodes (par défaut) :
@@ -67,10 +73,10 @@ public interface JadeMessageHandler {
         this.sendMessage(msg);
     }
 
-    default void sendMessageWithAction(final AID receiver,
-                                       final int performative,
-                                       final Ontology ontology,
-                                       final AgentAction agentAction)
+    default void sendMessage(final AID receiver,
+                             final int performative,
+                             final Ontology ontology,
+                             final AgentAction agentAction)
             throws Codec.CodecException, OntologyException {
         final Agent behaviorAgent = this.getAgent();
         final ACLMessage message = createMessage(behaviorAgent.getAID(), receiver, performative);
@@ -98,6 +104,8 @@ public interface JadeMessageHandler {
         message.setContent(errorMessage);
         agent.send(message);
     }
+
+    ///// Méthodes utilitaires :
 
     default <T extends AgentAction> T extractAgentActionFromMessage(final ACLMessage message)
             throws Codec.CodecException, OntologyException {

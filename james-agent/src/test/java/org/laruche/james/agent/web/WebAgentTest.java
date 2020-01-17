@@ -76,6 +76,38 @@ public class WebAgentTest extends AbstractWebAgentTestCase<String> {
     }
 
     @Test
+    public void shouldGetResponseWithBasePath() throws Exception {
+        final WebAgent webAgent = new WebAgent(8080, "basePath");
+        webAgent.registerSimpleResource(new TestResource());
+        this.agentPlugin.addAgentToStart(WEB_AGENT_ID, webAgent);
+        this.agentPlugin.start();
+        sleep(WAITING_TIME);
+        assertThat(this.agentPlugin.isStarted()).isTrue();
+        final HttpResponse contentResponse = this.sendRequest("http://localhost:8080/basePath/test", HttpMethod.GET, null);
+        assertThat(contentResponse).isNotNull();
+        assertThat(contentResponse.getStatus().isSuccess()).isTrue();
+        final JSONObject jsonResponse = contentResponse.toJSON();
+        assertThat(jsonResponse).isNotNull();
+        assertThat(jsonResponse.getString("test")).isEqualTo("OK");
+    }
+
+    @Test
+    public void shouldGetResponseWithBasePathAndSlash() throws Exception {
+        final WebAgent webAgent = new WebAgent(8080, "/basePath");
+        webAgent.registerSimpleResource(new TestResource());
+        this.agentPlugin.addAgentToStart(WEB_AGENT_ID, webAgent);
+        this.agentPlugin.start();
+        sleep(WAITING_TIME);
+        assertThat(this.agentPlugin.isStarted()).isTrue();
+        final HttpResponse contentResponse = this.sendRequest("http://localhost:8080/basePath/test", HttpMethod.GET, null);
+        assertThat(contentResponse).isNotNull();
+        assertThat(contentResponse.getStatus().isSuccess()).isTrue();
+        final JSONObject jsonResponse = contentResponse.toJSON();
+        assertThat(jsonResponse).isNotNull();
+        assertThat(jsonResponse.getString("test")).isEqualTo("OK");
+    }
+
+    @Test
     void shouldGetResponseFromQueryParameters() throws Exception {
         final WebAgent webAgent = new WebAgent(8080, "");
         webAgent.registerSimpleResource(new TestGetParameterResource());

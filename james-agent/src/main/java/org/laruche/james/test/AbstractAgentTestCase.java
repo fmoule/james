@@ -2,8 +2,10 @@ package org.laruche.james.test;
 
 import jade.content.ContentManager;
 import jade.content.onto.Ontology;
+import jade.core.Agent;
 import jade.lang.acl.ACLMessage;
 import org.laruche.james.agent.AbstractAgent;
+import org.laruche.james.agent.JadeMessageHandler;
 import org.laruche.james.agent.behavior.AbstractHandlingMessageBehavior;
 import org.laruche.james.agent.behavior.SequentialHandlingMessageBehavior;
 import org.laruche.james.plugin.AgentPlugin;
@@ -19,8 +21,8 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.laruche.james.test.AbstractAgentTestCase.TestResultStatus.ERROR;
 import static org.laruche.james.test.AbstractAgentTestCase.TestResultStatus.OK;
 
-public abstract class AbstractAgentTestCase<T> {
-    private static final int WAITING_TIME = 4000;
+public abstract class AbstractAgentTestCase<T> implements JadeMessageHandler {
+    public static final int WAITING_TIME = 4000;
     protected AgentPlugin agentPlugin;
     protected TestManagerAgent<T> testManagerAgent;
 
@@ -37,9 +39,16 @@ public abstract class AbstractAgentTestCase<T> {
 
     ///// Gestion des messages :
 
-    protected void sendMessage(final ACLMessage message) {
-        message.setSender(this.testManagerAgent.getAID());
-        testManagerAgent.send(message);
+    /**
+     * Méthode permettant de retourner l"agent sous-jacent utilisé
+     * pour la gestion des messages c'est à dire l'instance TestManagerAgent. <br />
+     *
+     * @see TestManagerAgent
+     * @return agent de test.
+     */
+    @Override
+    public Agent getAgent() {
+        return this.testManagerAgent;
     }
 
     ////// Getters & Setters :
