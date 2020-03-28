@@ -32,8 +32,8 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.laruche.james.bean.TestBeanOntology.TEST_BEAN_ONTOLOGY;
 
-public class WebAgentTest extends AbstractWebAgentTestCase<String> {
-    private static final int WAITING_TIME = 4000;
+public class RESTAgentTest extends AbstractWebAgentTestCase<String> {
+    private static final int WAITING_TIME = 5500;
     public static final String DAO_AGENT_ID = "daoAgent";
     public static final String WEB_AGENT_ID = "webAgent";
 
@@ -53,7 +53,7 @@ public class WebAgentTest extends AbstractWebAgentTestCase<String> {
 
     @Test
     void shouldStartTheAgent() throws Exception {
-        this.agentPlugin.addAgentToStart(WEB_AGENT_ID, new WebAgent(8080, ""));
+        this.agentPlugin.addAgentToStart(WEB_AGENT_ID, new RESTAgent(8080, ""));
         this.agentPlugin.start();
         sleep(WAITING_TIME);
         assertThat(this.agentPlugin.isStarted()).isTrue();
@@ -61,9 +61,9 @@ public class WebAgentTest extends AbstractWebAgentTestCase<String> {
 
     @Test
     void shouldGetResponse() throws Exception {
-        final WebAgent webAgent = new WebAgent(8080, "");
-        webAgent.registerSimpleResource(new TestResource());
-        this.agentPlugin.addAgentToStart(WEB_AGENT_ID, webAgent);
+        final RESTAgent RESTAgent = new RESTAgent(8080, "");
+        RESTAgent.registerSimpleResource(new TestResource());
+        this.agentPlugin.addAgentToStart(WEB_AGENT_ID, RESTAgent);
         this.agentPlugin.start();
         sleep(WAITING_TIME);
         assertThat(this.agentPlugin.isStarted()).isTrue();
@@ -77,9 +77,9 @@ public class WebAgentTest extends AbstractWebAgentTestCase<String> {
 
     @Test
     public void shouldGetResponseWithBasePath() throws Exception {
-        final WebAgent webAgent = new WebAgent(8080, "basePath");
-        webAgent.registerSimpleResource(new TestResource());
-        this.agentPlugin.addAgentToStart(WEB_AGENT_ID, webAgent);
+        final RESTAgent RESTAgent = new RESTAgent(8080, "basePath");
+        RESTAgent.registerSimpleResource(new TestResource());
+        this.agentPlugin.addAgentToStart(WEB_AGENT_ID, RESTAgent);
         this.agentPlugin.start();
         sleep(WAITING_TIME);
         assertThat(this.agentPlugin.isStarted()).isTrue();
@@ -93,9 +93,9 @@ public class WebAgentTest extends AbstractWebAgentTestCase<String> {
 
     @Test
     public void shouldGetResponseWithBasePathAndSlash() throws Exception {
-        final WebAgent webAgent = new WebAgent(8080, "/basePath");
-        webAgent.registerSimpleResource(new TestResource());
-        this.agentPlugin.addAgentToStart(WEB_AGENT_ID, webAgent);
+        final RESTAgent RESTAgent = new RESTAgent(8080, "/basePath");
+        RESTAgent.registerSimpleResource(new TestResource());
+        this.agentPlugin.addAgentToStart(WEB_AGENT_ID, RESTAgent);
         this.agentPlugin.start();
         sleep(WAITING_TIME);
         assertThat(this.agentPlugin.isStarted()).isTrue();
@@ -109,9 +109,9 @@ public class WebAgentTest extends AbstractWebAgentTestCase<String> {
 
     @Test
     void shouldGetResponseFromQueryParameters() throws Exception {
-        final WebAgent webAgent = new WebAgent(8080, "");
-        webAgent.registerSimpleResource(new TestGetParameterResource());
-        this.agentPlugin.addAgentToStart(WEB_AGENT_ID, webAgent);
+        final RESTAgent RESTAgent = new RESTAgent(8080, "");
+        RESTAgent.registerSimpleResource(new TestGetParameterResource());
+        this.agentPlugin.addAgentToStart(WEB_AGENT_ID, RESTAgent);
         this.agentPlugin.start();
         sleep(WAITING_TIME);
         assertThat(this.agentPlugin.isStarted()).isTrue();
@@ -126,9 +126,9 @@ public class WebAgentTest extends AbstractWebAgentTestCase<String> {
 
     @Test
     public void shouldGetResponseFromPathParameters() throws Exception {
-        final WebAgent webAgent = new WebAgent(8080, "");
-        webAgent.registerSimpleResource(new TestGetPathParameterResource());
-        this.agentPlugin.addAgentToStart(WEB_AGENT_ID, webAgent);
+        final RESTAgent RESTAgent = new RESTAgent(8080, "");
+        RESTAgent.registerSimpleResource(new TestGetPathParameterResource());
+        this.agentPlugin.addAgentToStart(WEB_AGENT_ID, RESTAgent);
         this.agentPlugin.start();
         sleep(WAITING_TIME);
         assertThat(this.agentPlugin.isStarted()).isTrue();
@@ -141,10 +141,10 @@ public class WebAgentTest extends AbstractWebAgentTestCase<String> {
 
     @Test
     void shouldPutInDAOThroughAgent() throws Exception {
-        final WebAgent webAgent = new WebAgent(8080, "");
-        webAgent.registerSimpleResource(new TestPutInDAOResource());
-        webAgent.setOntology(TEST_BEAN_ONTOLOGY);
-        this.agentPlugin.addAgentToStart(WEB_AGENT_ID, webAgent);
+        final RESTAgent RESTAgent = new RESTAgent(8080, "");
+        RESTAgent.registerSimpleResource(new TestPutInDAOResource());
+        RESTAgent.setOntology(TEST_BEAN_ONTOLOGY);
+        this.agentPlugin.addAgentToStart(WEB_AGENT_ID, RESTAgent);
         final TestPersonDaoAgent daoAgent = new TestPersonDaoAgent();
         daoAgent.setOntology(TEST_BEAN_ONTOLOGY);
         this.agentPlugin.addAgentToStart(DAO_AGENT_ID, daoAgent);
@@ -230,7 +230,7 @@ public class WebAgentTest extends AbstractWebAgentTestCase<String> {
     ///// Resources utilisées :
 
     @Path("test")
-    public static class TestResource extends WebAgent.AbstractWebAgentResource {
+    public static class TestResource extends RESTAgent.AbstractWebAgentResource {
 
         @GET
         public String handleGET() {
@@ -241,7 +241,7 @@ public class WebAgentTest extends AbstractWebAgentTestCase<String> {
     }
 
     @Path("test")
-    public static class TestGetParameterResource extends WebAgent.AbstractWebAgentResource {
+    public static class TestGetParameterResource extends RESTAgent.AbstractWebAgentResource {
 
         @GET
         public String handleGET(@QueryParam("param") final String param) {
@@ -255,7 +255,7 @@ public class WebAgentTest extends AbstractWebAgentTestCase<String> {
     }
 
     @Path("test")
-    public static class TestGetPathParameterResource extends WebAgent.AbstractWebAgentResource {
+    public static class TestGetPathParameterResource extends RESTAgent.AbstractWebAgentResource {
 
         @Path("/{param}")
         @GET
@@ -270,7 +270,7 @@ public class WebAgentTest extends AbstractWebAgentTestCase<String> {
     }
 
     @Path("test/put")
-    public static class TestPutInDAOResource extends WebAgent.AbstractWebAgentResource {
+    public static class TestPutInDAOResource extends RESTAgent.AbstractWebAgentResource {
 
         @PUT
         public String putInDAO(@QueryParam("firstName") final String firstName,

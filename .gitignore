@@ -24,7 +24,6 @@ MTPs-Main-Container.txt
 
 # Package Files #
 *.jar
-*.war
 *.nar
 *.ear
 *.zip
