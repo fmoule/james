@@ -7,8 +7,8 @@ import org.laruche.james.plugin.Plugin;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class PluginManagerTest {
-    private final PluginManager pluginManager = new PluginManager("pluginManager");
+class DefaultPluginManagerTest {
+    private final DefaultPluginManager pluginManager = new DefaultPluginManager("pluginManager");
 
     @AfterEach
     void tearDown() throws Exception {
@@ -21,11 +21,11 @@ class PluginManagerTest {
         pluginManager.addPlugin(new TestPlugin("plugin2"));
         pluginManager.addPlugin(new TestPlugin("plugin3"));
         pluginManager.start();
-        Plugin plugin = pluginManager.findPlugin((plugin1 -> "plugin2".equals(plugin1.getId())));
+        Plugin plugin = pluginManager.findFirstPlugin((plugin1 -> "plugin2".equals(plugin1.getId())));
         assertThat(plugin.isStarted()).isTrue();
-        plugin = pluginManager.findPlugin((plugin1 -> "plugin3".equals(plugin1.getId())));
+        plugin = pluginManager.findFirstPlugin((plugin1 -> "plugin3".equals(plugin1.getId())));
         assertThat(plugin.isStarted()).isTrue();
-        plugin = pluginManager.findPlugin((plugin1 -> "plugin1".equals(plugin1.getId())));
+        plugin = pluginManager.findFirstPlugin((plugin1 -> "plugin1".equals(plugin1.getId())));
         assertThat(plugin.isStarted()).isTrue();
     }
 
@@ -36,7 +36,7 @@ class PluginManagerTest {
         plugin2.addPluginDependency(OtherTestPlugin.class);
         pluginManager.addPlugin(plugin2);
         pluginManager.start();
-        Plugin plugin = pluginManager.findPlugin("plugin2");
+        Plugin plugin = pluginManager.findFirstPlugin("plugin2");
         assertThat(plugin).isNotNull();
         assertThat(plugin.isStarted()).isTrue();
     }
@@ -47,7 +47,7 @@ class PluginManagerTest {
         plugin2.addPluginDependency(OtherTestPlugin.class);
         pluginManager.addPlugin(plugin2);
         pluginManager.start();
-        Plugin plugin = pluginManager.findPlugin("plugin2");
+        Plugin plugin = pluginManager.findFirstPlugin("plugin2");
         assertThat(plugin).isNotNull();
         assertThat(plugin.isStarted()).isFalse();
     }
@@ -55,7 +55,7 @@ class PluginManagerTest {
     @Test
     void shouldFindPluginByItsClass() {
         pluginManager.addPlugin(new TestPlugin("plugin1"));
-        final Plugin plugin = pluginManager.findPlugin(TestPlugin.class);
+        final Plugin plugin = pluginManager.findFirstPlugin(TestPlugin.class);
         assertThat(plugin).isNotNull();
         assertThat(plugin.getId()).isEqualTo("plugin1");
     }
@@ -64,7 +64,7 @@ class PluginManagerTest {
     void shouldFindPluginById() throws Exception {
         pluginManager.addPlugin(new TestPlugin("plugin1"));
         pluginManager.addPlugin(new TestPlugin("plugin2"));
-        final Plugin plugin = pluginManager.findPlugin("plugin2");
+        final Plugin plugin = pluginManager.findFirstPlugin("plugin2");
         assertThat(plugin).isNotNull();
     }
 
@@ -74,11 +74,11 @@ class PluginManagerTest {
         pluginManager.addPlugin(new TestPlugin("plugin2"));
         pluginManager.addPlugin(new TestPlugin("plugin3"));
         pluginManager.start();
-        Plugin plugin = pluginManager.findPlugin("plugin3");
+        Plugin plugin = pluginManager.findFirstPlugin("plugin3");
         assertThat(plugin).isNotNull();
         assertThat(plugin.isStarted()).isTrue();
         pluginManager.removePlugin(plugin);
-        plugin = pluginManager.findPlugin("plugin3");
+        plugin = pluginManager.findFirstPlugin("plugin3");
         assertThat(plugin).isNull();
     }
 
