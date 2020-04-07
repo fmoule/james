@@ -6,6 +6,7 @@ import org.laruche.james.plugin.AbstractPlugin;
 import org.laruche.james.plugin.Plugin;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 class DefaultPluginManagerTest {
     private final DefaultPluginManager pluginManager = new DefaultPluginManager("pluginManager");
@@ -43,13 +44,18 @@ class DefaultPluginManagerTest {
 
     @Test
     void shouldNotStartPluginsWithDependencies() throws Exception {
-        TestPlugin plugin2 = new TestPlugin("plugin2");
+        final TestPlugin plugin2 = new TestPlugin("plugin2");
         plugin2.addPluginDependency(OtherTestPlugin.class);
         pluginManager.addPlugin(plugin2);
-        pluginManager.start();
-        Plugin plugin = pluginManager.findFirstPlugin("plugin2");
-        assertThat(plugin).isNotNull();
-        assertThat(plugin.isStarted()).isFalse();
+        try {
+            pluginManager.start();
+            fail("Doit échouer");
+        } catch (final Exception e) {
+            final Plugin plugin = pluginManager.findFirstPlugin("plugin2");
+            assertThat(plugin).isNotNull();
+            assertThat(plugin.isStarted()).isFalse();
+            assertThat(e.getMessage()).isEqualTo("Un des plugins {OtherTestPlugin} n'est pas démarré");
+        }
     }
 
     @Test

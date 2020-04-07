@@ -5,10 +5,7 @@ import org.laruche.james.plugin.Plugin;
 import org.laruche.james.plugin.PluginManager;
 import org.laruche.james.plugin.utils.BeanEqualsPredicate;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Predicate;
 
 import static java.util.stream.Collectors.toList;
@@ -19,23 +16,13 @@ import static java.util.stream.Collectors.toList;
  * </p>
  */
 public class DefaultPluginManager extends AbstractPlugin implements PluginManager {
-    private final Set<Plugin> plugins = new HashSet<>();
+    private final Set<Plugin> plugins = new TreeSet<>(new PluginComparator());
 
     public DefaultPluginManager(final String id) {
         super(id);
     }
 
-    /// Méthodes de l'interface Plugin :
-
-    @Override
-    protected void doStart() throws Exception {
-        for (Plugin plugin : plugins) {
-            if (!areDependenciesStarted(plugin.getPluginDependencies())) {
-                continue;
-            }
-            plugin.start();
-        }
-    }
+    /// Méthodes privées
 
     private boolean areDependenciesStarted(final Collection<Class<? extends Plugin>> pluginDependencies) {
         if (pluginDependencies == null) {
@@ -51,6 +38,34 @@ public class DefaultPluginManager extends AbstractPlugin implements PluginManage
             areStarted = areStarted && started;
         }
         return areStarted;
+    }
+
+    private static String buildExceptionMessage(final Collection<Class<? extends Plugin>> classes) {
+        final StringBuilder buffer = new StringBuilder("Un des plugins {");
+        int count = 0;
+        for (Class<? extends Plugin> clazz : classes) {
+            if (count > 0) {
+                buffer.append(",");
+            }
+            buffer.append(clazz.getSimpleName());
+            count++;
+        }
+        buffer.append("} n'est pas démarré");
+        return buffer.toString();
+    }
+
+    /// Méthodes de l'interface Plugin :
+
+    @Override
+    protected void doStart() throws Exception {
+        Collection<Class<? extends Plugin>> dependencies;
+        for (Plugin plugin : plugins) {
+            dependencies = plugin.getPluginDependencies();
+            if (!areDependenciesStarted(dependencies)) {
+                throw new Exception(buildExceptionMessage(dependencies));
+            }
+            plugin.start();
+        }
     }
 
     @Override
@@ -89,5 +104,31 @@ public class DefaultPluginManager extends AbstractPlugin implements PluginManage
         }
         return this.plugins.stream().filter(predicate).collect(toList());
     }
+
+    ///// Classes Internes :
+
+    private static class PluginComparator implements Comparator<Plugin> {
+
+        @Override
+        public int compare(final Plugin plugin1, final Plugin plugin2) {
+            if (plugin1 == null && plugin2 == null) {
+                return 0;
+            } else if (plugin1 == null) {
+                return -1;
+            } else if (plugin2 == null) {
+                return 1;
+            }
+            final Collection<Class<? extends Plugin>> collect1 = plugin1.getPluginDependencies();
+            final Collection<Class<? extends Plugin>> collect2 = plugin2.getPluginDependencies();
+            if (collect1 != null && collect1.contains(plugin2.getClass())) {
+                return 1;
+            } else if (collect2 != null && collect2.contains(plugin1.getClass())) {
+                return -1;
+            } else {
+                return plugin1.compareTo(plugin2);
+            }
+        }
+    }
+
 
 }
