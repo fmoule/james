@@ -20,6 +20,7 @@ public class MessageUtils {
 
     ///// Gestion générale des message
 
+
     public static ACLMessage createMessage(final AID senderAID, final AID receiver, final int performative) {
         final ACLMessage message = new ACLMessage(performative);
         message.setLanguage(DEFAULT_LANGUAGE.getName());
@@ -30,13 +31,14 @@ public class MessageUtils {
 
     /**
      * Methode permettant de créer un message. <br />
-     * @param contentManager
-     * @param senderAID
-     * @param receiver
-     * @param performative
-     * @param ontology
-     * @param agentAction
-     * @return
+     *
+     * @param contentManager : gestionnaire de contenu
+     * @param senderAID      : AID de l'envoyeur
+     * @param receiver       : AID du destinataire
+     * @param performative   : Type du message
+     * @param ontology       : Ontologie utilisée
+     * @param agentAction    : Action de l'agent
+     * @return message JADE
      * @throws CodecException
      * @throws OntologyException
      */

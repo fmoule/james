@@ -14,6 +14,7 @@ public abstract class AbstractPlugin implements Plugin {
     private boolean isStarted = false;
     private final String id;
     private final Set<Class<? extends Plugin>> pluginDependencies = new HashSet<>();
+    private transient PluginManager pluginManager;
 
     protected AbstractPlugin(final String id) {
         this.id = id;
@@ -79,5 +80,13 @@ public abstract class AbstractPlugin implements Plugin {
     @Override
     public Collection<Class<? extends Plugin>> getPluginDependencies() {
         return pluginDependencies;
+    }
+
+    public PluginManager getPluginManager() {
+        return pluginManager;
+    }
+
+    public void setPluginManager(final PluginManager pluginManager) {
+        this.pluginManager = pluginManager;
     }
 }

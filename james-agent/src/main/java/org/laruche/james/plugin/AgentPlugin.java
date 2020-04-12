@@ -7,6 +7,7 @@ import jade.core.Runtime;
 import jade.wrapper.AgentContainer;
 import jade.wrapper.AgentController;
 import jade.wrapper.ControllerException;
+import jade.wrapper.StaleProxyException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,6 +37,8 @@ public class AgentPlugin extends AbstractPlugin {
                 this.mainContainer.kill();
                 sleep(1000);
             }
+        } catch (final StaleProxyException staleProwyException) {
+            LOGGER.info("Container is, maybe, already closed");
         } catch (final Exception controllerException) {
             LOGGER.error(controllerException.getMessage(), controllerException);
             throw new Exception(controllerException.getMessage(), controllerException);
