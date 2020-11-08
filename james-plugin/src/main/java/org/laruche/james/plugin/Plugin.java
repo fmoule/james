@@ -7,7 +7,7 @@ import java.util.Collection;
  * Interface représentant les plugins. <br />
  * </p>
  */
-public interface Plugin extends AutoCloseable, Identifiable {
+public interface Plugin extends AutoCloseable, Identifiable, Comparable<Plugin> {
 
     /**
      * Méthode démarrant le plugin. <br />
@@ -37,5 +37,25 @@ public interface Plugin extends AutoCloseable, Identifiable {
     }
 
     Collection<Class<? extends Plugin>> getPluginDependencies();
+
+    ///// Méthodes par défaut :
+
+    @Override
+    default int compareTo(final Plugin plugin) {
+        if (plugin == null) {
+            return 1;
+        }
+        final String id1 = this.getId();
+        final String id2 = plugin.getId();
+        if (id1 == null && id2 == null) {
+            return 0;
+        } else if (id1 == null) {
+            return -1;
+        } else if (id2 == null) {
+            return 1;
+        } else {
+            return id1.compareTo(id2);
+        }
+    }
 }
 

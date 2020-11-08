@@ -73,8 +73,14 @@ public abstract class AbstractWebAgentTestCase<T> extends AbstractAgentTestCase<
             return new JSONArray(contentResponse.getContentAsString());
         }
 
+        ///// Getters & Setters
+
         public Code getStatus() {
             return getCode(this.contentResponse.getStatus());
+        }
+
+        public String getContentAsString() {
+            return (contentResponse == null ? "" : this.contentResponse.getContentAsString());
         }
     }
 }

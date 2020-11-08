@@ -99,7 +99,7 @@ public class AbstractBehaviorTest extends AbstractAgentTestCase<String> {
                 if (content instanceof String) {
                     this.sendMessage(receiver, performative, (String) content);
                 } else if (content instanceof AgentAction) {
-                    this.sendAgentAction(receiver, performative, this.ontology, (AgentAction) content);
+                    this.sendMessage(receiver, performative, this.ontology, (AgentAction) content);
                 }
             } catch (final Exception e) {
                 LOGGER.error(e.getMessage(), e);
