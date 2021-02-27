@@ -33,7 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.laruche.james.bean.TestBeanOntology.TEST_BEAN_ONTOLOGY;
 
 public class RESTAgentTest extends AbstractWebAgentTestCase<String> {
-    private static final int WAITING_TIME = 5500;
+    private static final int WAITING_TIME = 10500;
     public static final String DAO_AGENT_ID = "daoAgent";
     public static final String WEB_AGENT_ID = "webAgent";
 
@@ -197,7 +197,7 @@ public class RESTAgentTest extends AbstractWebAgentTestCase<String> {
                     testBeans.add(((AddTestBeanAction) agentAction).getTestBean());
                     this.sendResponse(message, INFORM, "Ajout OK");
                 } catch (final Exception exception) {
-                    this.sendFailureMessage(message, exception);
+                    this.sendFailureResponse(message, exception);
                 }
             }
 
@@ -220,7 +220,7 @@ public class RESTAgentTest extends AbstractWebAgentTestCase<String> {
                     testBeans.removeAll(testBeans.stream().filter(predicate).collect(toList()));
                     this.sendResponse(message, INFORM, "Suppression Ok");
                 } catch (final Exception e) {
-                    this.sendFailureMessage(message, e);
+                    this.sendFailureResponse(message, e);
                 }
             }
 
@@ -274,7 +274,7 @@ public class RESTAgentTest extends AbstractWebAgentTestCase<String> {
 
         @PUT
         public String putInDAO(@QueryParam("firstName") final String firstName,
-                             @QueryParam("name") final String name) {
+                               @QueryParam("name") final String name) {
             final JSONObject response = new JSONObject();
             try {
                 sendMessage(new AID(DAO_AGENT_ID, ISLOCALNAME), REQUEST, TEST_BEAN_ONTOLOGY, new AddTestBeanAction(firstName, name));
@@ -288,7 +288,6 @@ public class RESTAgentTest extends AbstractWebAgentTestCase<String> {
         }
 
     }
-
 
 
 }

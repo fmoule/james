@@ -16,9 +16,9 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 public class JettyAgent extends AbstractWebAgent {
     private String path;
     private transient Server jettyServer;
-    private JettyAgentMode mode;
+    private final JettyAgentMode mode;
 
-    private JettyAgent(final int port, final String basePath, final String path, JettyAgentMode mode) {
+    protected JettyAgent(final int port, final String basePath, final String path, JettyAgentMode mode) {
         super(port, basePath);
         this.path = path;
         this.mode = mode;
@@ -32,7 +32,7 @@ public class JettyAgent extends AbstractWebAgent {
         }
     }
 
-    ///// Getters & Setters :
+    ///// private / static methods
 
     @Override
     protected void initWebServer() throws Exception {
@@ -72,9 +72,6 @@ public class JettyAgent extends AbstractWebAgent {
         webAppContext.setWar(warResource.getPath());
     }
 
-
-    ///// Méthodes statiques :
-
     public static JettyAgent createJettyAgentForWebApp(final String basePath,
                                                        final int port,
                                                        final String webappPath) {
@@ -87,9 +84,15 @@ public class JettyAgent extends AbstractWebAgent {
         return new JettyAgent(port, basePath, warPath, JettyAgentMode.WAR);
     }
 
+    ///// Getters & Setters :
+
+    public void setPath(final String path) {
+        this.path = path;
+    }
+
     ///// Classes internes
 
-    private enum JettyAgentMode {
+    public enum JettyAgentMode {
         WAR,
         WEBAPP
     }

@@ -1,6 +1,7 @@
 package org.laruche.james.plugin;
 
 import jade.content.onto.Ontology;
+import jade.core.AID;
 import jade.wrapper.AgentController;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,6 +20,8 @@ class AgentPluginTest {
         }
     }
 
+    ///// Uni tests :
+
     @Test
     void shouldStartTheAgents() throws Exception {
         agentPlugin.start();
@@ -29,6 +32,19 @@ class AgentPluginTest {
         assertThat(agentController).isNotNull();
         agentController = agentPlugin.getAgentController("notExisting");
         assertThat(agentController).isNull();
+    }
+
+    @Test
+    public void shouldGetAgentController() throws Exception {
+        final TestAgent testAgent = new TestAgent();
+        agentPlugin.addAgentToStart("testAgent", testAgent);
+        agentPlugin.start();
+        sleep(1000);
+        final AID aid = testAgent.getAID();
+        assertThat(aid).isNotNull();
+        assertThat(aid.getLocalName()).isEqualTo("testAgent");
+        assertThat(agentPlugin.getAgentController(aid.getLocalName())).isNotNull();
+        assertThat(agentPlugin.getAgentController(aid.getName(), true)).isNotNull();
     }
 
     @Test
