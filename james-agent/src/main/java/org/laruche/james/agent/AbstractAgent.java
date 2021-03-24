@@ -7,6 +7,7 @@ import jade.core.behaviours.Behaviour;
 import jade.domain.DFService;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
+import org.laruche.james.plugin.PluginManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,10 +26,9 @@ public abstract class AbstractAgent
         extends Agent
         implements JadeMessageHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractAgent.class);
-
     private final Set<Behaviour> closeableBehaviours = new HashSet<>();
     private final Set<ServiceDescription> serviceDescriptions = new HashSet<>();
-
+    public PluginManager pluginManager;
     private transient boolean started = false;
     private transient boolean registred = false;
 
@@ -184,4 +184,11 @@ public abstract class AbstractAgent
         return asList(arguments);
     }
 
+    public PluginManager getPluginManager() {
+        return pluginManager;
+    }
+
+    public void setPluginManager(final PluginManager pluginManager) {
+        this.pluginManager = pluginManager;
+    }
 }

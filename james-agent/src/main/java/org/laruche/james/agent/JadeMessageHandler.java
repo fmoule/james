@@ -3,7 +3,7 @@ package org.laruche.james.agent;
 import jade.content.AgentAction;
 import jade.content.ContentElement;
 import jade.content.ContentManager;
-import jade.content.lang.Codec;
+import jade.content.lang.Codec.CodecException;
 import jade.content.onto.Ontology;
 import jade.content.onto.OntologyException;
 import jade.content.onto.basic.Action;
@@ -77,7 +77,7 @@ public interface JadeMessageHandler {
                              final int performative,
                              final Ontology ontology,
                              final AgentAction agentAction)
-            throws Codec.CodecException, OntologyException {
+            throws CodecException, OntologyException {
         final Agent behaviorAgent = this.getAgent();
         final ACLMessage message = createMessage(behaviorAgent.getAID(), receiver, performative);
         if (ontology != null) {
@@ -94,7 +94,7 @@ public interface JadeMessageHandler {
         this.getAgent().send(createResponse(message, performative, responseContent));
     }
 
-    default void sendFailureMessage(final ACLMessage message, final Exception e) {
+    default void sendFailureResponse(final ACLMessage message, final Exception e) {
         this.getAgent().send(createResponse(message, FAILURE, "ERROR : " + e.getMessage()));
     }
 
@@ -108,7 +108,7 @@ public interface JadeMessageHandler {
     ///// Méthodes utilitaires :
 
     default <T extends AgentAction> T extractAgentActionFromMessage(final ACLMessage message)
-            throws Codec.CodecException, OntologyException {
+            throws CodecException, OntologyException {
         final ContentElement contentElement = this.getContentManager().extractContent(message);
         if (!(contentElement instanceof Action)) {
             return null;
@@ -117,7 +117,7 @@ public interface JadeMessageHandler {
             //noinspection unchecked
             return (T) ((Action) contentElement).getAction();
         } catch (final ClassCastException e) {
-            throw new Codec.CodecException(e.getMessage(), e);
+            throw new CodecException(e.getMessage(), e);
         }
     }
 }

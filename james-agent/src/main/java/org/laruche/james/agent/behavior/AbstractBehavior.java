@@ -12,6 +12,9 @@ public abstract class AbstractBehavior extends SimpleBehaviour
         implements JadeMessageHandler {
     private boolean isDone = false;
 
+    /**
+     * Méthode permettant de mettre fin à l'exécution du comportement. <br />
+     */
     protected void finish() {
         this.isDone = true;
     }

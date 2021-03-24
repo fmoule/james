@@ -8,6 +8,7 @@ import jade.wrapper.AgentContainer;
 import jade.wrapper.AgentController;
 import jade.wrapper.ControllerException;
 import jade.wrapper.StaleProxyException;
+import org.laruche.james.agent.AbstractAgent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -130,15 +131,22 @@ public class AgentPlugin extends AbstractPlugin {
             } else {
                 this.agentsToStart.put(name, agent);
             }
+            if (agent instanceof AbstractAgent) {
+                ((AbstractAgent) agent).setPluginManager(this.getPluginManager());
+            }
         } catch (final Exception exception) {
             LOGGER.error(exception.getMessage(), exception);
             throw new RuntimeException(exception.getMessage(), exception);
         }
     }
 
-    public AgentController getAgentController(final String agentGUID) {
+    public AgentController getAgentController(final String agentLocalName) {
+        return getAgentController(agentLocalName, false);
+    }
+
+    public AgentController getAgentController(final String agentLocalName, boolean isGuid) {
         try {
-            return this.mainContainer.getAgent(agentGUID);
+            return this.mainContainer.getAgent(agentLocalName, isGuid);
         } catch (final ControllerException controllerException) {
             return null;
         }

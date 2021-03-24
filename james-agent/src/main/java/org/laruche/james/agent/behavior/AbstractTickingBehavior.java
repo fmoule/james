@@ -3,7 +3,7 @@ package org.laruche.james.agent.behavior;
 import static java.lang.System.currentTimeMillis;
 
 public abstract class AbstractTickingBehavior extends AbstractBehavior {
-    private long delay;
+    private final long delay;
     private transient long lastTimestamp;
 
     public AbstractTickingBehavior(final long delay) {
