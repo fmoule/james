@@ -9,9 +9,12 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.server.model.Resource;
 import org.glassfish.jersey.servlet.ServletContainer;
 
 import javax.ws.rs.ApplicationPath;
+
+import java.util.Set;
 
 import static org.laruche.james.message.MessageUtils.createMessage;
 
@@ -37,6 +40,11 @@ public class RESTAgent extends AbstractWebAgent {
     @Override
     protected void doTakeDown() throws Exception {
         LOGGER.info("==== Arret de l'agent Web {}", this.getName());
+        for (Object resource : this.resourceConfig.getInstances()) {
+            if (resource instanceof AutoCloseable) {
+                ((AutoCloseable) resource).close();
+            }
+        }
         if (!this.webServer.isStopped()) {
             this.webServer.stop();
         }

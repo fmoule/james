@@ -3,7 +3,7 @@ package org.laruche.james.agent.web;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.webapp.WebAppContext;
 
-import java.net.URL;
+import java.io.File;
 
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
@@ -49,27 +49,27 @@ public class JettyAgent extends AbstractWebAgent {
         this.jettyServer.start();
     }
 
-    private static void setWebAppPath(final WebAppContext webAppContext, final String path) {
+    static void setWebAppPath(final WebAppContext webAppContext, final String path) {
         if (isEmpty(path)) {
             throw new IllegalArgumentException("Le path ne doit pas être vide ou null");
         }
-        final URL resource = JettyAgent.class.getResource(path);
-        if (resource == null) {
-            throw new IllegalArgumentException("La ressource " + path + " n'existe pas");
+        final File webappDir = new File(path);
+        if (!webappDir.exists() || !webappDir.isDirectory()) {
+            throw new IllegalArgumentException("Le dossier " + webappDir.getAbsolutePath() + " n'existe pas ou n'est pas un dossier");
         }
+        webAppContext.setResourceBase(webappDir.getAbsolutePath());
         webAppContext.setDescriptor(path + "/WEB-INF/web.xml");
-        webAppContext.setResourceBase(resource.getPath());
     }
 
-    private static void setWarPath(final WebAppContext webAppContext, final String path) {
+    static void setWarPath(final WebAppContext webAppContext, final String path) {
         if (isEmpty(path)) {
             throw new IllegalArgumentException("Le path ne doit pas être vide ou null");
         }
-        final URL warResource = JettyAgent.class.getResource(path);
-        if (warResource == null) {
-            throw new IllegalArgumentException("La ressource " + path + " n'existe pas");
+        final File warFile = new File(path);
+        if (!warFile.exists() || !warFile.isFile()) {
+            throw new IllegalArgumentException("Le fichier WAR " + warFile.getAbsolutePath() + " n'existe pas ou n'est pas un fichier");
         }
-        webAppContext.setWar(warResource.getPath());
+        webAppContext.setWar(warFile.getAbsolutePath());
     }
 
     public static JettyAgent createJettyAgentForWebApp(final String basePath,
