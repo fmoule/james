@@ -3,6 +3,7 @@ package org.laruche.james.agent.web;
 import jade.content.AgentAction;
 import jade.core.AID;
 import jade.lang.acl.ACLMessage;
+import jakarta.ws.rs.*;
 import org.eclipse.jetty.http.HttpMethod;
 import org.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
@@ -14,7 +15,6 @@ import org.laruche.james.bean.TestBeanOntology.AddTestBeanAction;
 import org.laruche.james.bean.TestBeanOntology.DeleteTestBeanAction;
 import org.laruche.james.test.AbstractWebAgentTestCase;
 
-import javax.ws.rs.*;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;

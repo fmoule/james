@@ -5,18 +5,15 @@ import jade.content.lang.Codec;
 import jade.content.onto.BeanOntology;
 import jade.content.onto.OntologyException;
 import jade.core.AID;
+import jakarta.ws.rs.ApplicationPath;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.server.model.Resource;
 import org.glassfish.jersey.servlet.ServletContainer;
 
-import javax.ws.rs.ApplicationPath;
-
-import java.util.Set;
-
 import static org.laruche.james.message.MessageUtils.createMessage;
+//import static sun.net.www.protocol.http.AuthCacheValue.Type.Server;
 
 /**
  * <p>
