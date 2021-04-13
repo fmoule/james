@@ -5,12 +5,17 @@ import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.client.api.Request;
 import org.eclipse.jetty.client.util.StringContentProvider;
+import org.eclipse.jetty.http.HttpField;
+import org.eclipse.jetty.http.HttpFields;
 import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.http.HttpStatus.Code;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.eclipse.jetty.http.HttpHeader.CONTENT_TYPE;
@@ -113,6 +118,17 @@ public abstract class AbstractWebAgentTestCase<T> extends AbstractAgentTestCase<
 
         public String getContentAsString() {
             return (contentResponse == null ? "" : this.contentResponse.getContentAsString());
+        }
+
+        public Map<String, String> getHeaders() {
+            final Map<String, String> httpFields = new HashMap<>();
+            if (this.contentResponse == null) {
+                return httpFields;
+            }
+            for (HttpField field : this.contentResponse.getHeaders()) {
+                httpFields.put(field.getName(), field.getValue());
+            }
+            return httpFields;
         }
     }
 }
