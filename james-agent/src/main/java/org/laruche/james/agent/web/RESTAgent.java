@@ -5,17 +5,27 @@ import jade.content.lang.Codec;
 import jade.content.onto.BeanOntology;
 import jade.content.onto.OntologyException;
 import jade.core.AID;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpFilter;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.ws.rs.ApplicationPath;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.server.model.Resource;
 import org.glassfish.jersey.servlet.ServletContainer;
 
-import javax.ws.rs.ApplicationPath;
-
+import java.io.IOException;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
 
+import static jakarta.servlet.DispatcherType.REQUEST;
+import static java.util.Arrays.asList;
+import static java.util.EnumSet.of;
 import static org.laruche.james.message.MessageUtils.createMessage;
 
 /**
@@ -26,13 +36,18 @@ import static org.laruche.james.message.MessageUtils.createMessage;
  * </p>
  */
 public class RESTAgent extends AbstractWebAgent {
+    public static final String CORS_HEADER = "Access-Control-Allow-Origin";
     private transient Server webServer;
     private WebAgentResourceConfig resourceConfig;
+    private final Set<String> corUrls;
 
     ///// Constructeurs :
 
     public RESTAgent(final int port, final String basePath) {
         super(port, basePath);
+        this.corUrls = new HashSet<>();
+        this.webServer = null;
+        this.resourceConfig = null;
     }
 
     ///// Initialisation & Arret :
@@ -59,9 +74,10 @@ public class RESTAgent extends AbstractWebAgent {
         if (resourceConfig == null) {
             resourceConfig = new WebAgentResourceConfig(this);
         }
-        final ServletContextHandler jettyHandler = new ServletContextHandler();
-        jettyHandler.addServlet(new ServletHolder(new ServletContainer(resourceConfig)), processPathSpec(basePath));
-        webServer.setHandler(jettyHandler);
+        final ServletContextHandler jettyContextHandler = new ServletContextHandler();
+        jettyContextHandler.addServlet(new ServletHolder(new ServletContainer(resourceConfig)), processPathSpec(basePath));
+        jettyContextHandler.addFilter(new FilterHolder(new CorsFilter(corUrls)), "/*", of(REQUEST));
+        webServer.setHandler(jettyContextHandler);
         this.webServer.start();
     }
 
@@ -75,6 +91,15 @@ public class RESTAgent extends AbstractWebAgent {
     }
 
     ///// Getters & Setters :
+
+    public void setCORSUrls(final Collection<String> urls) {
+        this.corUrls.clear();
+        this.corUrls.addAll(urls);
+    }
+
+    public void addCORSUrls(final String... urls) {
+        this.corUrls.addAll(asList(urls));
+    }
 
     ///////////////////////
     ///// Classes privées :
@@ -126,6 +151,38 @@ public class RESTAgent extends AbstractWebAgent {
                     performative,
                     ontology,
                     agentAction));
+        }
+    }
+
+    private static class CorsFilter extends HttpFilter {
+        private final Set<String> corsUrls;
+
+        public CorsFilter(final Set<String> corUrls) {
+            this.corsUrls = corUrls;
+        }
+
+        @Override
+        protected void doFilter(final HttpServletRequest req,
+                                final HttpServletResponse res,
+                                final FilterChain chain) throws IOException, ServletException {
+            if (this.corsUrls != null
+                    && !this.corsUrls.isEmpty()) {
+                res.setHeader(CORS_HEADER, getCORSHeaderValue());
+            }
+            super.doFilter(req, res, chain);
+        }
+
+        private String getCORSHeaderValue() {
+            int cursor = 0;
+            final StringBuilder buffer = new StringBuilder();
+            for (String corsUrl : corsUrls) {
+                if (cursor > 0) {
+                    buffer.append(",");
+                }
+                buffer.append(corsUrl);
+                cursor++;
+            }
+            return buffer.toString();
         }
     }
 }
