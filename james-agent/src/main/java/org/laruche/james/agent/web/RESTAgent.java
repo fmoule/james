@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 import static jakarta.servlet.DispatcherType.REQUEST;
 import static java.util.Arrays.asList;
@@ -36,18 +37,21 @@ import static org.laruche.james.message.MessageUtils.createMessage;
  * </p>
  */
 public class RESTAgent extends AbstractWebAgent {
-    public static final String CORS_HEADER = "Access-Control-Allow-Origin";
+    public static final String CORS_ALLOW_ORIGIN = "Access-Control-Allow-Origin";
+    public static final String CORS_ALLOW_HEADERS = "Access-Control-Allow-Headers";
     private transient Server webServer;
     private WebAgentResourceConfig resourceConfig;
-    private final Set<String> corUrls;
+    private final Set<String> corsUrls;
+    private final Set<String> corsHeaders;
 
     ///// Constructeurs :
 
     public RESTAgent(final int port, final String basePath) {
         super(port, basePath);
-        this.corUrls = new HashSet<>();
         this.webServer = null;
         this.resourceConfig = null;
+        this.corsUrls = new HashSet<>();
+        this.corsHeaders = new HashSet<>();
     }
 
     ///// Initialisation & Arret :
@@ -76,7 +80,7 @@ public class RESTAgent extends AbstractWebAgent {
         }
         final ServletContextHandler jettyContextHandler = new ServletContextHandler();
         jettyContextHandler.addServlet(new ServletHolder(new ServletContainer(resourceConfig)), processPathSpec(basePath));
-        jettyContextHandler.addFilter(new FilterHolder(new CorsFilter(corUrls)), "/*", of(REQUEST));
+        jettyContextHandler.addFilter(new FilterHolder(new CorsFilter(corsUrls, corsHeaders)), "/*", of(REQUEST));
         webServer.setHandler(jettyContextHandler);
         this.webServer.start();
     }
@@ -90,15 +94,24 @@ public class RESTAgent extends AbstractWebAgent {
         this.resourceConfig.registerResource(webAgentResource);
     }
 
+    public void addCORSUrls(final String... urls) {
+        this.corsUrls.addAll(asList(urls));
+    }
+
+    public void addCORSHeaders(final String... headers) {
+        this.corsHeaders.addAll(asList(headers));
+    }
+
     ///// Getters & Setters :
 
     public void setCORSUrls(final Collection<String> urls) {
-        this.corUrls.clear();
-        this.corUrls.addAll(urls);
+        this.corsUrls.clear();
+        this.corsUrls.addAll(urls);
     }
 
-    public void addCORSUrls(final String... urls) {
-        this.corUrls.addAll(asList(urls));
+    public void setCORSHeaders(final Collection<String> headers) {
+        this.corsHeaders.clear();
+        this.corsHeaders.addAll(headers);
     }
 
     ///////////////////////
@@ -155,27 +168,32 @@ public class RESTAgent extends AbstractWebAgent {
     }
 
     private static class CorsFilter extends HttpFilter {
-        private final Set<String> corsUrls;
+        private final Set<String> corsOrigins;
+        private final Set<String> corsHeaders;
 
-        public CorsFilter(final Set<String> corUrls) {
-            this.corsUrls = corUrls;
+        public CorsFilter(final Set<String> corUrls, final Set<String> corsHeaders) {
+            this.corsOrigins = corUrls;
+            this.corsHeaders = corsHeaders;
         }
 
         @Override
         protected void doFilter(final HttpServletRequest req,
                                 final HttpServletResponse res,
                                 final FilterChain chain) throws IOException, ServletException {
-            if (this.corsUrls != null
-                    && !this.corsUrls.isEmpty()) {
-                res.setHeader(CORS_HEADER, getCORSHeaderValue());
+            if (this.corsOrigins != null
+                    && !this.corsOrigins.isEmpty()) {
+                res.setHeader(CORS_ALLOW_ORIGIN, getCORSUrlsValue(corsOrigins));
+            }
+            if (this.corsHeaders != null && !this.corsHeaders.isEmpty()) {
+                res.setHeader(CORS_ALLOW_HEADERS, getCORSUrlsValue(corsHeaders));
             }
             super.doFilter(req, res, chain);
         }
 
-        private String getCORSHeaderValue() {
+        private static String getCORSUrlsValue(final Collection<String> corsValue) {
             int cursor = 0;
             final StringBuilder buffer = new StringBuilder();
-            for (String corsUrl : corsUrls) {
+            for (String corsUrl : new TreeSet<>(corsValue)) {
                 if (cursor > 0) {
                     buffer.append(",");
                 }
