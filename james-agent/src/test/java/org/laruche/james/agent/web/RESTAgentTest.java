@@ -32,7 +32,8 @@ import static java.util.Collections.singleton;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.laruche.james.agent.web.RESTAgent.CORS_HEADER;
+import static org.laruche.james.agent.web.RESTAgent.CORS_ALLOW_HEADERS;
+import static org.laruche.james.agent.web.RESTAgent.CORS_ALLOW_ORIGIN;
 import static org.laruche.james.bean.TestBeanOntology.TEST_BEAN_ONTOLOGY;
 
 public class RESTAgentTest extends AbstractWebAgentTestCase<String> {
@@ -115,6 +116,7 @@ public class RESTAgentTest extends AbstractWebAgentTestCase<String> {
         final RESTAgent resTAgent = new RESTAgent(8080, "/basePath");
         resTAgent.registerSimpleResource(new TestResource());
         resTAgent.setCORSUrls(singleton("*"));
+        resTAgent.setCORSHeaders(singleton("Content-Type"));
         this.agentPlugin.addAgentToStart(WEB_AGENT_ID, resTAgent);
         this.agentPlugin.start();
         sleep(WAITING_TIME);
@@ -122,8 +124,10 @@ public class RESTAgentTest extends AbstractWebAgentTestCase<String> {
         final HttpResponse contentResponse = this.sendRequest("http://localhost:8080/basePath/test", HttpMethod.GET, null);
         final Map<String, String> headers = contentResponse.getHeaders();
         assertThat(headers).isNotEmpty();
-        assertThat(headers.containsKey(CORS_HEADER)).isTrue();
-        assertThat(headers.get(CORS_HEADER)).isEqualTo("*");
+        assertThat(headers.containsKey(CORS_ALLOW_ORIGIN)).isTrue();
+        assertThat(headers.get(CORS_ALLOW_ORIGIN)).isEqualTo("*");
+        assertThat(headers.containsKey(CORS_ALLOW_HEADERS)).isTrue();
+        assertThat(headers.get(CORS_ALLOW_HEADERS)).isEqualTo("Content-Type");
     }
 
     @Test
@@ -137,7 +141,8 @@ public class RESTAgentTest extends AbstractWebAgentTestCase<String> {
         final HttpResponse contentResponse = this.sendRequest("http://localhost:8080/basePath/test", HttpMethod.GET, null);
         final Map<String, String> headers = contentResponse.getHeaders();
         assertThat(headers).isNotEmpty();
-        assertThat(headers.containsKey(CORS_HEADER)).isFalse();
+        assertThat(headers.containsKey(CORS_ALLOW_ORIGIN)).isFalse();
+        assertThat(headers.containsKey(CORS_ALLOW_HEADERS)).isFalse();
     }
 
     @Test
@@ -151,15 +156,18 @@ public class RESTAgentTest extends AbstractWebAgentTestCase<String> {
         HttpResponse contentResponse = this.sendRequest("http://localhost:8080/basePath/test", HttpMethod.GET, null);
         Map<String, String> headers = contentResponse.getHeaders();
         assertThat(headers).isNotEmpty();
-        assertThat(headers.containsKey(CORS_HEADER)).isFalse();
+        assertThat(headers.containsKey(CORS_ALLOW_ORIGIN)).isFalse();
 
         // Add the CORS header :
         resTAgent.addCORSUrls("url1", "url2");
+        resTAgent.addCORSHeaders("header1", "header2");
         contentResponse = this.sendRequest("http://localhost:8080/basePath/test", HttpMethod.GET, null);
         headers = contentResponse.getHeaders();
         assertThat(headers).isNotEmpty();
-        assertThat(headers.containsKey(CORS_HEADER)).isTrue();
-        assertThat(headers.get(CORS_HEADER)).isEqualTo("url1,url2");
+        assertThat(headers.containsKey(CORS_ALLOW_ORIGIN)).isTrue();
+        assertThat(headers.get(CORS_ALLOW_ORIGIN)).isEqualTo("url1,url2");
+        assertThat(headers.containsKey(CORS_ALLOW_HEADERS)).isTrue();
+        assertThat(headers.get(CORS_ALLOW_HEADERS)).isEqualTo("header1,header2");
     }
 
     @Test
